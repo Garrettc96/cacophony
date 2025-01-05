@@ -4,8 +4,18 @@ meta {
   seq: 5
 }
 
-get {
+post {
   url: http://localhost:8080/cacophony/messages
-  body: none
+  body: json
   auth: none
+}
+
+body:json {
+  {
+    "userId": "3d38c6c3-43a2-40cf-8502-02ec34a014ba",
+    "conversationId": "3448c516-1e66-4345-82b5-f1a7b836335d",
+    "message": "Something else?"
+    
+  }
+  
 }

@@ -12,6 +12,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "c_users")
@@ -23,7 +24,7 @@ public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Access(AccessType.PROPERTY)
-    String id;
+    UUID id;
     @ManyToMany
     @JoinTable(
             name = "user_conversations",
@@ -38,7 +39,7 @@ public class User implements Serializable {
     OffsetDateTime createdAt;
     @LastModifiedDate
     OffsetDateTime updatedAt;
-    public static User fromId(String id) {
+    public static User fromId(UUID id) {
         return User.builder().id(id).build();
     }
 

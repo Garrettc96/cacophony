@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("chats")
-@Validated
 public class ChatController {
     private final ChatService chatService;
     public ChatController(ChatService chatService) {

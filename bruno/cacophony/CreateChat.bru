@@ -5,13 +5,23 @@ meta {
 }
 
 post {
-  url: localhost:8080/caophony/chats
+  url: http://localhost:8080/cacophony/chats
   body: json
   auth: none
 }
 
+headers {
+  Content-Type: application/json
+  Accept: */*
+  Content: 
+}
+
 body:json {
   {
-    "name": 
+    "name": "testChat",
+    "description": "testChat",
+    "members": [
+      "3d38c6c3-43a2-40cf-8502-02ec34a014ba"
+    ]
   }
 }

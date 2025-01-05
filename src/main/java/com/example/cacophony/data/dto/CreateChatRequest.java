@@ -6,12 +6,13 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class CreateChatRequest {
-    @Size(min = 100)
+    @Size(min = 5, message = "Min name length is 5")
     String name;
-    @NotNull
+    @NotNull(message = "Description can't be null")
     String description;
-    List<@Size(min = 1, max=4, message = "Member is invalid length")String> members;
+    List<UUID> members;
 }

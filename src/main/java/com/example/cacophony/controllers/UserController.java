@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("users")
@@ -23,7 +24,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(
-            @Parameter(description = "UUID of user being requested") @Valid @PathVariable String id) {
+            @Parameter(description = "UUID of user being requested") @Valid @PathVariable UUID id) {
         return ResponseEntity.ok(this.userService.getUserFromId(id));
     }
 
