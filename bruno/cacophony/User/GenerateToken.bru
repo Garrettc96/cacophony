@@ -1,0 +1,18 @@
+meta {
+  name: GenerateToken
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:8080/cacophony/users/generateToken
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "username": "thor2",
+      "password": "test"
+  }
+}

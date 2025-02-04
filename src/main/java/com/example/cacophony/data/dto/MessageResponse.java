@@ -10,9 +10,9 @@ import java.util.UUID;
 @Data
 @Builder
 public class MessageResponse {
-    String id;
+    UUID id;
     UUID userId;
-    String conversationId;
+    UUID conversationId;
     String message;
     OffsetDateTime createdAt;
     OffsetDateTime updatedAt;

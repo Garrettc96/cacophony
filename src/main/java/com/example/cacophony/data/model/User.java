@@ -1,6 +1,6 @@
 package com.example.cacophony.data.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.example.cacophony.data.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +11,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -35,6 +36,8 @@ public class User implements Serializable {
     String username;
     String email;
     String password;
+    @Enumerated(EnumType.STRING)
+    List<UserRole> roles;
     @CreatedDate
     OffsetDateTime createdAt;
     @LastModifiedDate
@@ -46,6 +49,35 @@ public class User implements Serializable {
     public static User fromName(String name) {
         return User.builder().username(name).build();
     }
+    public static User withRoles(User user, List<UserRole> roles) {
+        return User.builder()
+            .id(user.id)
+            .conversations(user.conversations)
+            .roles(roles)
+            .username(user.username)
+            .password(user.password)
+            .email(user.email)
+            .createdAt(user.createdAt)
+            .updatedAt(user.updatedAt)
+            .build();
+    }
+    public static User withPassword(User user, String password) {
+        return User.builder()
+            .id(user.id)
+            .conversations(user.conversations)
+            .roles(user.roles)
+            .username(user.username)
+            .password(password)
+            .email(user.email)
+            .createdAt(user.createdAt)
+            .updatedAt(user.updatedAt)
+            .build();
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof User
+            && ((User) o).getId().equals(this.id);
 
+    }
 }

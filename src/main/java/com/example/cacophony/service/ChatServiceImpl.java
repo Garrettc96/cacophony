@@ -9,6 +9,7 @@ import com.example.cacophony.repository.ConversationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,5 +44,9 @@ public class ChatServiceImpl implements ChatService {
 
     public Chat getChat(String chatId) {
         return chatRepository.findById(UUID.fromString(chatId)).orElseThrow(() -> new NotFoundException("Chat not found"));
+    }
+
+    public List<Chat> getChatsByTimestamp(OffsetDateTime startTime, OffsetDateTime endTime) {
+        return this.chatRepository.findByCreatedAtBetween(startTime, endTime);
     }
 }

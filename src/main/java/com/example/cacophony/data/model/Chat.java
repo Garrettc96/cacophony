@@ -13,6 +13,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -21,7 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Chat implements Serializable {
     @Id
-    String id;
+    UUID id;
 
     @MapsId
     @OneToOne(cascade = CascadeType.PERSIST)

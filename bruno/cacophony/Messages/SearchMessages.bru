@@ -1,0 +1,16 @@
+meta {
+  name: SearchMessages
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8080/cacophony/messages/search?startEpoch=0&endEpoch= 1736103921
+  body: none
+  auth: none
+}
+
+params:query {
+  startEpoch: 0
+  endEpoch:  1736103921
+}

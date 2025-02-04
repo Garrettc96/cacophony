@@ -8,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 
 enum CHANNEL_VISIBILITY {
     PUBLIC,
@@ -18,7 +19,7 @@ enum CHANNEL_VISIBILITY {
 @Entity
 public class Channel {
     @Id
-    private String id;
+    private UUID id;
 
     @MapsId
     @OneToOne(cascade = CascadeType.PERSIST)

@@ -8,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 
@@ -44,7 +45,7 @@ class ConversationTypeConverter implements AttributeConverter<ConversationType, 
 public class Conversation {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
     @CreatedDate
     OffsetDateTime createdAt;
@@ -58,7 +59,7 @@ public class Conversation {
     @OneToOne(mappedBy = "conversation")
     private Chat chat;
 
-    public static Conversation of(String id, ConversationType type) {
+    public static Conversation of(UUID id, ConversationType type) {
         return Conversation.builder()
                 .id(id)
                 .type(type)

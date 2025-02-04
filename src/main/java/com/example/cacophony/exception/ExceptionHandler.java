@@ -1,9 +1,10 @@
-package com.example.cacophony;
+package com.example.cacophony.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -23,6 +24,18 @@ public class ExceptionHandler {
       String errorMessage = error.getDefaultMessage();
       errors.put(fieldName, errorMessage);
     });
-    return ResponseEntity.of(Optional.of(errors));
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+  }
+
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @org.springframework.web.bind.annotation.ExceptionHandler(MissingPathVariableException.class)
+  public ResponseEntity<String> missingPathException(MissingPathVariableException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Path variable is missing: " + ex.getVariableName());
+  }
+
+  @ResponseStatus(HttpStatus.CONFLICT)
+  @org.springframework.web.bind.annotation.ExceptionHandler(DuplicateEntityException.class)
+  public ResponseEntity<String> entityAlreadyExistsException(DuplicateEntityException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(String.format("Entity %s already exists", ex.getEntityName()));
   }
 }
