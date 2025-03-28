@@ -10,9 +10,10 @@ public enum ModelType {
 
   public static ModelType fromString(String modelTypeString) {
     return switch(modelTypeString.toLowerCase()) {
-      case "chat": yield ModelType.CONVERSATION;
-      case "message": yield ModelType.MESSAGE;
-      case "user": yield ModelType.USER;
+      case "chats": yield ModelType.CONVERSATION;
+      case "conversations": yield ModelType.CONVERSATION;
+      case "messages": yield ModelType.MESSAGE;
+      case "users": yield ModelType.USER;
       default: throw new ModelParseException(String.format("Unable to detect model from modelTypeString: %s", modelTypeString));
     };
   }

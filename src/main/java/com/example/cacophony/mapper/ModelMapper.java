@@ -2,11 +2,22 @@ package com.example.cacophony.mapper;
 
 import com.example.cacophony.data.dto.*;
 import com.example.cacophony.data.model.*;
+import com.example.cacophony.service.UserService;
+import com.example.cacophony.util.Identity;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class ModelMapper {
-    public static User requestToUser(CreateUserRequest createUserRequest) {
+        
+    UserService userService;
+    public ModelMapper(UserService userService) {
+        this.userService = userService;
+    }
+
+    public User requestToUser(CreateUserRequest createUserRequest) {
         return User.builder()
                 .email(createUserRequest.getEmail())
                 .password(createUserRequest.getPassword())
@@ -15,7 +26,7 @@ public class ModelMapper {
                 .build();
     }
 
-    public static CreateUserResponse userToResponse(User user) {
+    public CreateUserResponse userToResponse(User user) {
         return CreateUserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
@@ -23,7 +34,7 @@ public class ModelMapper {
                 .build();
     }
 
-    public static Chat requestToChat(CreateChatRequest createChatRequest) {
+    public Chat requestToChat(CreateChatRequest createChatRequest) {
         return Chat.builder()
                 .name(createChatRequest.getName())
                 .description(createChatRequest.getDescription())
@@ -35,19 +46,19 @@ public class ModelMapper {
                 .build();
     }
 
-    public static CreateChatResponse chatToCreateResponse(Chat chat) {
+    public CreateChatResponse chatToCreateResponse(Chat chat) {
         return CreateChatResponse.builder()
                 .id(chat.getConversation().getId())
                 .name(chat.getName())
                 .description(chat.getDescription())
-                .members(chat.getConversation().getMembers().stream().map(User::getUsername).toList())
+                .members(chat.getConversation().getMembers().stream().map(User::getId).toList())
                 .build();
     }
 
-    public static Message createMessageRequestToMessage(CreateMessageRequest createMessageRequest) {
+    public Message createMessageRequestToMessage(CreateMessageRequest createMessageRequest) {
         return Message.builder()
                 .text(createMessageRequest.getMessage())
-                .user(User.fromId(createMessageRequest.getUserId()))
+                .user(userService.getUserFromId(UUID.fromString(Identity.getUserId())))
                 .conversation(
                         Conversation.builder()
                                 .id(createMessageRequest.getConversationId())
@@ -57,7 +68,7 @@ public class ModelMapper {
                 .build();
     }
 
-    public static MessageResponse messageToResponse(Message message) {
+    public MessageResponse messageToResponse(Message message) {
         return MessageResponse.builder()
                 .id(message.getId())
                 .userId(message.getUser().getId())
@@ -67,4 +78,34 @@ public class ModelMapper {
                 .updatedAt(message.getUpdatedAt())
                 .build();
     }
+
+    public Channel requestToChannel(CreateChannelRequest request) {
+        return Channel.builder()
+                .description(request.getDescription())
+                .name(request.getName())
+                .conversation(Conversation.builder()
+                        .type(ConversationType.CHANNEL)
+                        .members(request.getMembers().stream().map(User::fromId).toList())
+                        .build()
+                )
+                .build();
+    }
+
+    public CreateChannelResponse channelToCreateResponse(Channel channel) {
+        return CreateChannelResponse.builder()
+                .id(channel.getConversation().getId())
+                .name(channel.getName())
+                .description(channel.getDescription())
+                .members(channel.getConversation().getMembers().stream().map(User::getId).toList())
+        .build();
+    }
+
+    public List<MessageResponse> listOfMessagesToRespones(List<Message> messageList) {
+        List<MessageResponse> messageResponseList = new ArrayList();
+        for(Message message: messageList) {
+            messageResponseList.add(messageToResponse(message));
+        }
+        return messageResponseList;
+    }
+
 }

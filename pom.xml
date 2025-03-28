@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.example</groupId>
     <artifactId>cacophony</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.7</version>
     <name>cacophony</name>
     <description>cacophony</description>
     <url/>
@@ -129,7 +129,23 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>0.11.5</version>
         </dependency>
-
+        <dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <scope>runtime</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>1.19.3</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>1.19.3</version>
+        <scope>test</scope>
+    </dependency>
     </dependencies>
 
     <build>

@@ -7,15 +7,19 @@ meta {
 post {
   url: http://localhost:8080/cacophony/messages
   body: json
-  auth: none
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0aG9yNTUiLCJpYXQiOjE3NDMwNzgyNjksImV4cCI6MTc0NDU0OTQ5OH0.AOFLs0Zyp2ppexvoOWUPECyoFmVNXQuJXwWj-Ur-LPE
 }
 
 body:json {
   {
-    "userId": "3d38c6c3-43a2-40cf-8502-02ec34a014ba",
-    "conversationId": "3448c516-1e66-4345-82b5-f1a7b836335d",
-    "message": "Something else?"
-    
+    "conversationId": "33d92406-a25c-4aa7-af53-4d0f8629006d"
   }
-  
 }

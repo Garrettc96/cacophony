@@ -53,11 +53,8 @@ public class Conversation {
     OffsetDateTime updatedAt;
 
     ConversationType type;
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     List<User> members;
-
-    @OneToOne(mappedBy = "conversation")
-    private Chat chat;
 
     public static Conversation of(UUID id, ConversationType type) {
         return Conversation.builder()
@@ -70,4 +67,5 @@ public class Conversation {
                 .type(type)
                 .build();
     }
+
 }

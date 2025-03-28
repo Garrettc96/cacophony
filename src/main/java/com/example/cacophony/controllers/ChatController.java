@@ -8,30 +8,26 @@ import com.example.cacophony.service.ChatService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
-
-import static com.example.cacophony.util.TimeUtil.epochToTimestamp;
 
 @RestController
 @RequestMapping("chats")
 public class ChatController {
     private final ChatService chatService;
-    public ChatController(ChatService chatService) {
+    private final ModelMapper modelMapper;
+    public ChatController(ChatService chatService, ModelMapper modelMapper) {
         this.chatService = chatService;
+        this.modelMapper = modelMapper;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public CreateChatResponse createChat(@Valid @RequestBody CreateChatRequest request) {
-        return ModelMapper.chatToCreateResponse(this.chatService.createChat(ModelMapper.requestToChat(request)));
+    public ResponseEntity<CreateChatResponse> createChat(@Valid @RequestBody CreateChatRequest request) {
+        return ResponseEntity.ok(modelMapper.chatToCreateResponse(this.chatService.createChat(modelMapper.requestToChat(request))));
     }
 
     @GetMapping("/{id}")
-    public Chat getChat(@PathVariable String id) {
-        return this.chatService.getChat(id);
+    public ResponseEntity<Chat> getChat(@PathVariable String id) {
+        return ResponseEntity.ok(this.chatService.getChat(id));
     }
 }

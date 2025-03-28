@@ -4,8 +4,16 @@ meta {
   seq: 3
 }
 
-get {
+post {
   url: http://localhost:8080/cacophony/users/addNewUser
-  body: none
+  body: json
   auth: none
+}
+
+body:json {
+  {
+    "username": "thor55",
+    "password": "testThor",
+    "email": "thor@gmail.com"
+  }
 }

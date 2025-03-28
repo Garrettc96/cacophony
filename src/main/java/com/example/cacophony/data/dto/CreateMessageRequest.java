@@ -1,15 +1,21 @@
 package com.example.cacophony.data.dto;
 
 import com.example.cacophony.data.model.ModelType;
-import com.example.cacophony.security.ResourceAccessType;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public final class CreateMessageRequest implements ResourceAuthorizationBody {
-    UUID userId;
+
     UUID conversationId;
     String message;
 

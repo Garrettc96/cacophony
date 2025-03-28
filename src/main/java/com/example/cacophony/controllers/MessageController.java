@@ -13,41 +13,28 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.example.cacophony.util.TimeUtil.epochToTimestamp;
-
 @RestController
 @RequestMapping("messages")
 public class MessageController {
     MessageService messageService;
-    public MessageController(MessageService messageService) {
+    ModelMapper modelMapper;
+    public MessageController(MessageService messageService, ModelMapper modelMapper) {
         this.messageService = messageService;
+        this.modelMapper = modelMapper;
     }
 
     @PostMapping
-    public MessageResponse createMessage(@RequestBody CreateMessageRequest request) {
-        return ModelMapper.messageToResponse(
-                this.messageService.createMessage(ModelMapper.createMessageRequestToMessage(request))
-        );
+    public ResponseEntity<MessageResponse> createMessage(@RequestBody CreateMessageRequest request) {
+        return ResponseEntity.ok(modelMapper.messageToResponse(
+                this.messageService.createMessage(modelMapper.createMessageRequestToMessage(request))
+        ));
     }
 
     @GetMapping("/{id}")
-    public MessageResponse getMessage(@PathVariable String id) {
-        return ModelMapper.messageToResponse(
+    public ResponseEntity<MessageResponse> getMessage(@PathVariable String id) {
+        return ResponseEntity.ok(modelMapper.messageToResponse(
                 this.messageService.getMessage(id)
-        );
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<MessageResponse>> searchMessages(
-        @RequestParam(name="conversationId") UUID conversationId,
-        @RequestParam(name = "startEpoch") long startEpoch,
-        @RequestParam(name = "endEpoch") long endEpoch) {
-        return ResponseEntity.of(
-            Optional.of(
-                this.messageService.getMessagesInConversationBetweenTimes(conversationId, epochToTimestamp(startEpoch), epochToTimestamp(endEpoch)).stream()
-                    .map(ModelMapper::messageToResponse).toList()
-            )
-        );
+        ));
     }
 
 }

@@ -7,7 +7,7 @@ meta {
 post {
   url: http://localhost:8080/cacophony/chats
   body: json
-  auth: none
+  auth: bearer
 }
 
 headers {
@@ -16,12 +16,16 @@ headers {
   Content: 
 }
 
+auth:bearer {
+  token: {{bearer}}
+}
+
 body:json {
   {
     "name": "testChat",
     "description": "testChat",
     "members": [
-      "3d38c6c3-43a2-40cf-8502-02ec34a014ba"
+      "30db62a0-fedf-4a77-b57a-75d4a9217c03"
     ]
   }
 }

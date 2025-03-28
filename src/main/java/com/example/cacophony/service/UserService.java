@@ -13,4 +13,5 @@ public interface UserService extends UserDetailsService{
     public UserDetails getUserDetailsFromUser(User user);
     public User getUserFromName(String name);
     public List<User> listUsers();
+    public List<User> validateUsers(List<User> users);
 }

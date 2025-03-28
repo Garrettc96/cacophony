@@ -1,8 +1,11 @@
 package com.example.cacophony.service;
 
 import com.example.cacophony.data.model.Message;
+import com.example.cacophony.data.model.User;
 import com.example.cacophony.exception.NotFoundException;
 import com.example.cacophony.repository.MessageRepository;
+
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -11,8 +14,11 @@ import java.util.UUID;
 public class MessageServiceImpl implements MessageService {
 
     MessageRepository messageRepository;
-    public MessageServiceImpl(MessageRepository messageRepository) {
+    ConversationService conversationService;
+
+    public MessageServiceImpl(MessageRepository messageRepository, ConversationService conversationService) {
         this.messageRepository = messageRepository;
+        this.conversationService = conversationService;
     }
 
     @Override
@@ -28,5 +34,11 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public List<Message> getMessagesInConversationBetweenTimes(UUID conversationId, OffsetDateTime startTime, OffsetDateTime endTime) {
         return this.messageRepository.findByConversationIdAndCreatedAtBetween(conversationId, startTime, endTime);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean canUserAccessMessage(UUID userId, String conversationId) {
+        return this.conversationService.isUserInConversation(UUID.fromString(conversationId), userId);
     }
 }

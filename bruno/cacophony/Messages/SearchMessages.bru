@@ -5,12 +5,17 @@ meta {
 }
 
 get {
-  url: http://localhost:8080/cacophony/messages/search?startEpoch=0&endEpoch= 1736103921
+  url: http://localhost:8080/cacophony/conversations/search?conversationId=d5603793-9d5e-481c-a9c1-bc36b10d1d50&startEpoch=0&endEpoch=1738635734
   body: none
-  auth: none
+  auth: bearer
 }
 
 params:query {
+  conversationId: d5603793-9d5e-481c-a9c1-bc36b10d1d50
   startEpoch: 0
-  endEpoch:  1736103921
+  endEpoch: 1738635734
+}
+
+auth:bearer {
+  token: {{bearer}}
 }

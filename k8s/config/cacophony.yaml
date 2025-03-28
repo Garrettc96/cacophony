@@ -1,0 +1,67 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cacophony
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cacophony
+  template:
+    metadata:
+      labels:
+        app: cacophony
+    spec:
+      containers:
+      - name: cacophony
+        image: public.ecr.aws/j6e6l3c7/cacophony:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:postgresql://cnpg-rw:5432/cacophony
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: cnpg-app
+              key: username
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cnpg-app
+              key: password
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        readinessProbe:
+          httpGet:
+            path: /cacophony/actuator/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /cacophony/actuator/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cacophony
+spec:
+  selector:
+    app: cacophony
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer

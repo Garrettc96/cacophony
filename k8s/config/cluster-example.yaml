@@ -1,0 +1,12 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg
+spec:
+  instances: 3
+  storage:
+    size: 15Gi
+  bootstrap:
+    initdb:
+      database: cacophony
+      owner: cacophony

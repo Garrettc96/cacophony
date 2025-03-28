@@ -13,5 +13,6 @@ public class CreateChatResponse {
     UUID id;
     String name;
     String description;
-    List<String> members;
+    List<UUID> members;
+
 }

@@ -6,6 +6,7 @@ import com.example.cacophony.data.model.ModelType;
 import com.example.cacophony.data.model.User;
 import com.example.cacophony.exception.NotFoundException;
 import com.example.cacophony.service.ChatService;
+import com.example.cacophony.service.ConversationService;
 import com.example.cacophony.service.MessageService;
 import com.example.cacophony.service.UserService;
 import jakarta.servlet.FilterChain;
@@ -14,7 +15,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
@@ -22,6 +27,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.example.cacophony.util.json.MAPPER;
@@ -42,33 +49,41 @@ record AuthTypeAndId(
 public class ResourceAccessFilter extends OncePerRequestFilter {
 
   final MessageService messageService;
-  final ChatService chatService;
+  final ConversationService conversationService;
   final UserService userService;
 
-  public ResourceAccessFilter(MessageService messageService, ChatService chatService, UserService userService) {
+  public ResourceAccessFilter(MessageService messageService, ConversationService conversationService, UserService userService) {
     this.messageService = messageService;
-    this.chatService = chatService;
+    this.conversationService = conversationService;
     this.userService = userService;
   }
+
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
-    if (request.getUserPrincipal() == null) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if ( authentication == null || authentication.getPrincipal() == null) {
       filterChain.doFilter(request, response);
       return;
     }
     HttpServletRequest requestCache = new ContentCachingRequestWrapper(request);
-    String requestPath = request.getRequestURI();
-    String userId = "";
+    String fullRequestPathWithQuery = request.getRequestURL().toString();
+    String queryString = request.getQueryString();
+    if (queryString != null) {
+      fullRequestPathWithQuery += "?" + queryString;
+    }
+
+    String requestPath = request.getRequestURL().toString();
+    UserInfoDetails userDetails = ( (UserInfoDetails)authentication.getPrincipal());
     ResourceAccessType resourceAccessType = parseRequestToResourceAccessType(request, requestPath);
     AuthTypeAndId authTypeAndId = switch (resourceAccessType) {
       case ResourceAccessType.ResourceAccessPathId t ->
-          parseAuthTypeAndIdFromRequest(requestPath);
+          parseAuthTypeAndIdFromRequest(fullRequestPathWithQuery);
       case ResourceAccessType.ResourceAccessBodyId t -> parseAuthTypeAndIdFromBody(requestCache, t);
       case ResourceAccessType.ResourceAccessGeneral t -> null;
     };
-    if (canUserAccessAuthTypeAndId(userId, authTypeAndId)) {
-      return;
+    if (canUserAccessAuthTypeAndId(userDetails, authTypeAndId)) {
+      filterChain.doFilter(request, response);
     } else {
       throw new AuthorizationDeniedException("User does not have permission to access requested resource.");
     }
@@ -82,29 +97,31 @@ public class ResourceAccessFilter extends OncePerRequestFilter {
       // If its a create, do they always have permission?
       //   - No they don't, you can't create a message in a chat you don't have access to.
   }
-  private boolean canUserAccessAuthTypeAndId(String userId, AuthTypeAndId authTypeAndId) {
+  private boolean canUserAccessAuthTypeAndId(UserInfoDetails userDetails, AuthTypeAndId authTypeAndId) {
     // This is only true if ResourceAccessType is ResourceAccessGeneral which means any user can access
     if (authTypeAndId == null) {
       return true;
     }
     return switch(authTypeAndId.resourceType()) {
-      case USER -> userId.equals(authTypeAndId.id());
-      case MESSAGE -> this.messageService.getMessage(authTypeAndId.id())
-          .getConversation()
-          .getMembers()
-          .contains(
-              User.fromId(UUID.fromString(userId)));
-      case CONVERSATION -> this.chatService
-          .getChat(authTypeAndId.id())
-          .getConversation()
-          .getMembers()
-          .contains(User.fromId(UUID.fromString(userId)));
+      case USER -> userDetails.userId.equals(UUID.fromString(authTypeAndId.id()));
+      case MESSAGE -> this.messageService.canUserAccessMessage(userDetails.userId, authTypeAndId.id());
+      case CONVERSATION -> this.conversationService.isUserInConversation(userDetails.userId, UUID.fromString(authTypeAndId.id()));
     };
   }
 
+  private String findGuid(String str) {
+    Pattern pattern = Pattern.compile("[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}");
+    Matcher matcher = pattern.matcher(str);
+    if (matcher.find()) {
+        return matcher.group(0);
+    }
+    return null;
+  }
+
   private AuthTypeAndId parseAuthTypeAndIdFromRequest(String requestPath) {
+    // GUID regex
+    String id = findGuid(requestPath);
     List<String> splitPath = Arrays.stream(requestPath.split("/")).toList();
-    String id = splitPath.getLast();
     String authType = splitPath.get(splitPath.size()-2);
     return new AuthTypeAndId(
         id,
@@ -152,6 +169,25 @@ public class ResourceAccessFilter extends OncePerRequestFilter {
       } else {
         throw new NotFoundException("Resource URL not found when authorizing chats request");
       }
+    } else if (resourcePath.startsWith("/channels")) {
+      if (requestMethod.equals(POST) && resourcePath.matches("\\/channels\\/[a-z-]*")) {
+        return new ResourceAccessType.ResourceAccessPathId();
+        // POST /chats
+      } else if (requestMethod.equals(POST) && resourcePath.matches("/channels")) {
+        return new ResourceAccessType.ResourceAccessGeneral();
+      } else {
+        throw new NotFoundException("Resource URL not found when authorizing channels request");
+      }
+    } else if (resourcePath.startsWith("/conversations")) {
+      if (requestMethod.equals(GET) && resourcePath.matches("\\/conversations\\/[a-z-]*")) {
+        return new ResourceAccessType.ResourceAccessPathId();
+      // POST /messages
+      } else if (requestMethod.equals(POST) && resourcePath.matches("\\/conversations")) {
+        return new ResourceAccessType.ResourceAccessBodyId();
+      } else {
+        throw new NotFoundException("Resource URL not found when authorizing messages request");
+      }
+
     } else if (resourcePath.startsWith("/messages")) {
       // GET /messages/{id}
       if (requestMethod.equals(GET) && resourcePath.matches("\\/messages\\/[a-z-]*")) {

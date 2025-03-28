@@ -27,11 +27,14 @@ public class SecurityConfig {
   private JwtAuthFilter authFilter;
   UserDetailsService userService;
   ResourceAccessFilter resourceAccessFilter;
+  CacheRequestBodyFilter cacheRequestBodyFilter;
 
-  public SecurityConfig(JwtAuthFilter jwtAuthFilter, UserService userService) {
+  public SecurityConfig(JwtAuthFilter jwtAuthFilter, UserService userService, ResourceAccessFilter resourceAccessFilter,
+      CacheRequestBodyFilter cacheRequestBodyFilter) {
     this.authFilter = jwtAuthFilter;
     this.userService = userService;
-    this.resourceAccessFilter = null;
+    this.resourceAccessFilter = resourceAccessFilter;
+    this.cacheRequestBodyFilter = cacheRequestBodyFilter;
 
   }
 
@@ -49,6 +52,8 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/auth/welcome", "/users/addNewUser", "/users/generateToken").permitAll()
+            .requestMatchers("/actuator/**").permitAll()
+            .requestMatchers("/cacophony/auth/welcome", "/cacophony/users/addNewUser", "/cacophony/users/generateToken").permitAll()
             .requestMatchers("/auth/user/**").hasAuthority("ROLE_USER")
             .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
             .anyRequest().authenticated() // Protect all other endpoints
@@ -57,16 +62,14 @@ public class SecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions
         )
         .authenticationProvider(authenticationProvider) // Custom authentication provider
-        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter
-        //.addFilterAfter(resourceAccessFilter, UsernamePasswordAuthenticationFilter.class);
+        .addFilterAfter(cacheRequestBodyFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class) // Add JWT filter
+        .addFilterAfter(resourceAccessFilter, CacheRequestBodyFilter.class);
     return http.build();
   }
-
-
 
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
     return config.getAuthenticationManager();
   }
-
 }

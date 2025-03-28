@@ -8,6 +8,7 @@ import com.example.cacophony.repository.ChatRepository;
 import com.example.cacophony.repository.ConversationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -26,14 +27,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     public Chat createChat(final Chat chat) {
-        List<User> chatMembers = chat.getConversation().getMembers().stream()
-                .map((User user) -> this.userService.getUserFromId(user.getId()))
-                .map((User user) -> {
-                    if (user == null) {
-                        log.error("User not found when processing chat: {}", chat);
-                        throw new NotFoundException("User not found");
-                    } return user;
-                }).toList();
+        List<User> chatMembers = this.userService.validateUsers(chat.getConversation().getMembers());
         Conversation conversation = this.conversationRepository.save(Conversation.builder()
                 .members(chatMembers)
                 .type(chat.getConversation().getType())
@@ -49,4 +43,13 @@ public class ChatServiceImpl implements ChatService {
     public List<Chat> getChatsByTimestamp(OffsetDateTime startTime, OffsetDateTime endTime) {
         return this.chatRepository.findByCreatedAtBetween(startTime, endTime);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+        public boolean canUserAccessChat(UUID userId, String chatId) {
+        return getChat(chatId)
+            .getConversation()
+            .getMembers()
+            .contains(User.fromId(userId));
+        }
 }

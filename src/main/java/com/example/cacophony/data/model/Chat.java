@@ -38,6 +38,7 @@ public class Chat implements Serializable {
     public static Chat of(Chat chat, Conversation conversation) {
         return Chat.builder()
                 .conversation(conversation)
+                .description(chat.description)
                 .name(chat.getName())
                 .build();
     }
