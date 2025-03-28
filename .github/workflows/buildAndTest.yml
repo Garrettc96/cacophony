@@ -1,8 +1,8 @@
-name: Makefile CI
+name: buildAndTest CI
 
 on:
   push:
-    branches: [ "main", "githubActionTesting" ]
+    branches: [ "*" ]
   pull_request:
     branches: [ "main" ]
 
@@ -20,5 +20,5 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         architecture: x64
-    - name: Install dependencies
+    - name: Run tests
       run: make test

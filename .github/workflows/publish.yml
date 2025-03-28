@@ -1,0 +1,28 @@
+name: Publish CI
+
+on:
+  push:
+    branches: [ "*" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 21 for x64
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        architecture: x64
+    - name: Publish docker image
+      run: make publish
+    - name: "Push new version back to github"
+      run: |
+        git config --global user.name 'Garrettc96'
+        git config --global user.email 'Garrettc96@users.noreply.github.com'
+        git commit -am "Bumping version"
+        git push
