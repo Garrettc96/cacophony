@@ -60,8 +60,9 @@ public class BeanSetup {
     }
 
     @Bean
-    public ResourceAccessFilter resourceAccessFilter(MessageService messageService, ConversationService conversationService, UserService userService) {
-        return new ResourceAccessFilter(messageService, conversationService, userService);
+    public ResourceAccessFilter resourceAccessFilter(MessageService messageService, ConversationService conversationService, UserService userService,
+            ChatService chatService, ChannelService channelService) {
+        return new ResourceAccessFilter(messageService, conversationService, userService, chatService, channelService);
     }
     
     @Bean

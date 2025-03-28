@@ -10,7 +10,6 @@ public enum ModelType {
 
   public static ModelType fromString(String modelTypeString) {
     return switch(modelTypeString.toLowerCase()) {
-      case "chats": yield ModelType.CONVERSATION;
       case "conversations": yield ModelType.CONVERSATION;
       case "messages": yield ModelType.MESSAGE;
       case "users": yield ModelType.USER;

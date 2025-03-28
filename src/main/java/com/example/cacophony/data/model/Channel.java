@@ -46,6 +46,7 @@ public class Channel implements Serializable {
                 .conversation(conversation)
                 .description(channel.getDescription())
                 .name(channel.getName())
+                .visibility(channel.visibility)
                 .build();
     }
 }

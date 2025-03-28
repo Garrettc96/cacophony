@@ -23,13 +23,16 @@ import static javax.xml.crypto.dsig.Transform.BASE64;
 public class JwtServiceImpl implements JwtService {
 
   private final String secret;
-  public JwtServiceImpl(@Value("${cacophony.jwt.secret}") String secret) {
+  private final UserService userService;
+  public JwtServiceImpl(@Value("${cacophony.jwt.secret}") String secret, UserService userService) {
     this.secret = secret;
+    this.userService = userService;
   }
 
   @Override
   public String generateToken(String userName) {
     Map<String, Object> claims = new HashMap<>();
+    claims.put("userId", this.userService.getUserFromName(userName).getId().toString());
     return createToken(claims, userName);
   }
 

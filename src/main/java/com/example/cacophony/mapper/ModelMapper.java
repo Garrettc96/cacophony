@@ -48,7 +48,7 @@ public class ModelMapper {
 
     public CreateChatResponse chatToCreateResponse(Chat chat) {
         return CreateChatResponse.builder()
-                .id(chat.getConversation().getId())
+                .id(chat.getId())
                 .name(chat.getName())
                 .description(chat.getDescription())
                 .members(chat.getConversation().getMembers().stream().map(User::getId).toList())
@@ -93,7 +93,7 @@ public class ModelMapper {
 
     public CreateChannelResponse channelToCreateResponse(Channel channel) {
         return CreateChannelResponse.builder()
-                .id(channel.getConversation().getId())
+                .id(channel.getId())
                 .name(channel.getName())
                 .description(channel.getDescription())
                 .members(channel.getConversation().getMembers().stream().map(User::getId).toList())

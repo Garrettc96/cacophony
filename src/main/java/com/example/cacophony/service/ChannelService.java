@@ -9,6 +9,4 @@ import com.example.cacophony.data.model.Channel;
 public interface ChannelService {
     public Channel createChannel(Channel Channel);
     public Channel getChannel(String channelId);
-    public List<Channel> getChannelsByTimestamp(OffsetDateTime startEpoch, OffsetDateTime endEpoch);
-    public boolean canUserAccessChannel(UUID userId, String channelId);
 }

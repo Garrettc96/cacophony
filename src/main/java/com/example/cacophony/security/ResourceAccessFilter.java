@@ -5,6 +5,7 @@ import com.example.cacophony.data.dto.ResourceAuthorizationBody;
 import com.example.cacophony.data.model.ModelType;
 import com.example.cacophony.data.model.User;
 import com.example.cacophony.exception.NotFoundException;
+import com.example.cacophony.service.ChannelService;
 import com.example.cacophony.service.ChatService;
 import com.example.cacophony.service.ConversationService;
 import com.example.cacophony.service.MessageService;
@@ -24,6 +25,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import java.io.IOException;
+import java.nio.channels.Channels;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -50,12 +52,17 @@ public class ResourceAccessFilter extends OncePerRequestFilter {
 
   final MessageService messageService;
   final ConversationService conversationService;
+  final ChatService chatService;
+  final ChannelService channelService;
   final UserService userService;
 
-  public ResourceAccessFilter(MessageService messageService, ConversationService conversationService, UserService userService) {
+  public ResourceAccessFilter(MessageService messageService, ConversationService conversationService, UserService userService,
+      ChatService chatService, ChannelService channelService) {
     this.messageService = messageService;
     this.conversationService = conversationService;
     this.userService = userService;
+    this.chatService = chatService;
+    this.channelService = channelService;
   }
 
   @Override
@@ -66,7 +73,6 @@ public class ResourceAccessFilter extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
       return;
     }
-    HttpServletRequest requestCache = new ContentCachingRequestWrapper(request);
     String fullRequestPathWithQuery = request.getRequestURL().toString();
     String queryString = request.getQueryString();
     if (queryString != null) {
@@ -79,7 +85,7 @@ public class ResourceAccessFilter extends OncePerRequestFilter {
     AuthTypeAndId authTypeAndId = switch (resourceAccessType) {
       case ResourceAccessType.ResourceAccessPathId t ->
           parseAuthTypeAndIdFromRequest(fullRequestPathWithQuery);
-      case ResourceAccessType.ResourceAccessBodyId t -> parseAuthTypeAndIdFromBody(requestCache, t);
+      case ResourceAccessType.ResourceAccessBodyId t -> parseAuthTypeAndIdFromBody(request, t);
       case ResourceAccessType.ResourceAccessGeneral t -> null;
     };
     if (canUserAccessAuthTypeAndId(userDetails, authTypeAndId)) {
@@ -105,7 +111,8 @@ public class ResourceAccessFilter extends OncePerRequestFilter {
     return switch(authTypeAndId.resourceType()) {
       case USER -> userDetails.userId.equals(UUID.fromString(authTypeAndId.id()));
       case MESSAGE -> this.messageService.canUserAccessMessage(userDetails.userId, authTypeAndId.id());
-      case CONVERSATION -> this.conversationService.isUserInConversation(userDetails.userId, UUID.fromString(authTypeAndId.id()));
+      case CONVERSATION -> this.conversationService.isUserInConversation(
+        UUID.fromString(authTypeAndId.id()), userDetails.userId);
     };
   }
 
@@ -140,6 +147,7 @@ public class ResourceAccessFilter extends OncePerRequestFilter {
             try {
               ResourceAuthorizationBody body =
                   (ResourceAuthorizationBody) MAPPER.readValue(lines, subClass);
+              
               return new AuthTypeAndId(body.getAuthId(), body.getModelType());
             } catch (Exception ex) {
               log.info("Unable to parse authBody to {} with ex {}", subClass, ex.toString());

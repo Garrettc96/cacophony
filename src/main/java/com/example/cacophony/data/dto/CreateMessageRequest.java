@@ -1,6 +1,9 @@
 package com.example.cacophony.data.dto;
 
 import com.example.cacophony.data.model.ModelType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,11 +23,13 @@ public final class CreateMessageRequest implements ResourceAuthorizationBody {
     String message;
 
     @Override
+    @JsonIgnore
     public String getAuthId() {
         return conversationId.toString();
     }
 
     @Override
+    @JsonIgnore
     public ModelType getModelType() {
         return ModelType.MESSAGE;
     }
