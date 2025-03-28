@@ -75,7 +75,7 @@ class CacophonyApplicationTests {
 
     @Autowired
     private MockMvc mockMvc;
-    
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -87,27 +87,24 @@ class CacophonyApplicationTests {
 
     @BeforeEach
     public void setup() {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-        .apply(springSecurity())
-        .defaultRequest(get("/")
-            .contextPath("/cacophony"))  // Use contextPath instead of servletPath
-        .alwaysDo(MockMvcResultHandlers.print())
-        .build();
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(springSecurity())
+                .defaultRequest(get("/").contextPath("/cacophony")) // Use contextPath instead of servletPath
+                .alwaysDo(MockMvcResultHandlers.print()).build();
         cleanupDatabase();
     }
 
     void cleanupDatabase() {
-        List<String> tableNames = jdbcTemplate.queryForList("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public';", String.class);
-        
+        List<String> tableNames = jdbcTemplate
+                .queryForList("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public';", String.class);
+
         // Truncate all tables
         tableNames.forEach(tableName -> {
-            try {    
+            try {
                 jdbcTemplate.execute("TRUNCATE TABLE " + tableName + " CASCADE");
             } catch (Exception ex) {
                 System.out.println(ex);
-            } 
-        }
-        );
+            }
+        });
     }
 
     @Test
@@ -123,13 +120,12 @@ class CacophonyApplicationTests {
         request.setEmail("testuser@example.com");
 
         // Perform the API call to create a new user
-        mockMvc.perform(post("/cacophony/users/addNewUser")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(request)))
-                .andExpect(status().isOk())
+        mockMvc.perform(post("/cacophony/users/addNewUser").contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(request))).andExpect(status().isOk())
                 .andExpect(jsonPath("$.userName").value("testuser"))
                 .andExpect(jsonPath("$.email").value("testuser@example.com"));
     }
+
     @Test
     void testGenerateToken() throws Exception {
         // First create a user that we can authenticate
@@ -139,10 +135,8 @@ class CacophonyApplicationTests {
         createRequest.setEmail("authuser@example.com");
 
         // Create the user first
-        mockMvc.perform(post("/cacophony/users/addNewUser")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createRequest)))
-                .andExpect(status().isOk());
+        mockMvc.perform(post("/cacophony/users/addNewUser").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createRequest))).andExpect(status().isOk());
 
         // Create auth request
         AuthRequest authRequest = new AuthRequest();
@@ -150,10 +144,8 @@ class CacophonyApplicationTests {
         authRequest.setPassword("password123");
 
         // Test token generation
-        mockMvc.perform(post("/cacophony/users/generateToken")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(authRequest)))
-                .andExpect(status().isOk())
+        mockMvc.perform(post("/cacophony/users/generateToken").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(authRequest))).andExpect(status().isOk())
                 .andExpect(content().string(CoreMatchers.not(""))); // Verify we get a non-empty token back
     }
 
@@ -168,12 +160,9 @@ class CacophonyApplicationTests {
         request.setMembers(List.of(userService.getUserFromName(TEST_USER).getId()));
 
         // Test chat creation
-        mockMvc.perform(post("/cacophony/chats")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Test Chat"))
+        mockMvc.perform(post("/cacophony/chats").header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.name").value("Test Chat"))
                 .andExpect(jsonPath("$.description").value("A test chat room"))
                 .andExpect(jsonPath("$.members").isArray())
                 .andExpect(jsonPath("$.members[0]").value(userService.getUserFromName(TEST_USER).getId().toString()))
@@ -189,14 +178,11 @@ class CacophonyApplicationTests {
         request.setName("test channel name");
         request.setDescription("random test description");
         request.setMembers(List.of(userService.getUserFromName(TEST_USER).getId()));
-        
+
         // Test channel creation
-        mockMvc.perform(post("/cacophony/channels")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("test channel name"))
+        mockMvc.perform(post("/cacophony/channels").header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.name").value("test channel name"))
                 .andExpect(jsonPath("$.description").value("random test description"))
                 .andExpect(jsonPath("$.members").isArray())
                 .andExpect(jsonPath("$.members[0]").value(userService.getUserFromName(TEST_USER).getId().toString()))
@@ -214,31 +200,27 @@ class CacophonyApplicationTests {
         chatRequest.setMembers(List.of(userService.getUserFromName(TEST_USER).getId()));
 
         // Create the chat and get its ID
-        String chatResponse = mockMvc.perform(post("/cacophony/chats")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(chatRequest)))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        
-        CreateChatResponse createChannel = objectMapper.readValue(chatResponse, new TypeReference<CreateChatResponse>(){});
+        String chatResponse = mockMvc
+                .perform(post("/cacophony/chats").header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(chatRequest)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        CreateChatResponse createChannel = objectMapper.readValue(chatResponse,
+                new TypeReference<CreateChatResponse>() {
+                });
 
         sendMessage(createChannel.getId().toString(), token);
         sendMessage(createChannel.getId().toString(), token);
         sendMessage(createChannel.getId().toString(), token);
 
-        String searchResponse = mockMvc.perform(get("/cacophony/conversations/search")
-                .header("Authorization", "Bearer " + token)
-                .queryParam("conversationId", createChannel.getId().toString())
-                .queryParam("startEpoch", "0")
-                .queryParam("endEpoch", String.valueOf(OffsetDateTime.now().toInstant().toEpochMilli())))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();  
-        List<MessageResponse> messages = objectMapper.readValue(searchResponse ,new TypeReference<List<MessageResponse>>(){});
+        String searchResponse = mockMvc
+                .perform(get("/cacophony/conversations/search").header("Authorization", "Bearer " + token)
+                        .queryParam("conversationId", createChannel.getId().toString()).queryParam("startEpoch", "0")
+                        .queryParam("endEpoch", String.valueOf(OffsetDateTime.now().toInstant().toEpochMilli())))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        List<MessageResponse> messages = objectMapper.readValue(searchResponse,
+                new TypeReference<List<MessageResponse>>() {
+                });
         assertNotNull(messages);
         assertTrue(messages.size() == 3);
     }
@@ -254,31 +236,28 @@ class CacophonyApplicationTests {
         channelRequest.setMembers(List.of(userService.getUserFromName(TEST_USER).getId()));
 
         // Create the chat and get its ID
-        String channelResponse = mockMvc.perform(post("/cacophony/channels")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(channelRequest)))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        
-        CreateChannelResponse createChannel = objectMapper.readValue(channelResponse, new TypeReference<CreateChannelResponse>(){});
+        String channelResponse = mockMvc
+                .perform(post("/cacophony/channels").header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(channelRequest)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        CreateChannelResponse createChannel = objectMapper.readValue(channelResponse,
+                new TypeReference<CreateChannelResponse>() {
+                });
 
         sendMessage(createChannel.getId().toString(), token);
         sendMessage(createChannel.getId().toString(), token);
         sendMessage(createChannel.getId().toString(), token);
 
-        String searchResponse = mockMvc.perform(get("/cacophony/conversations/search")
-                .header("Authorization", "Bearer " + token)
-                .queryParam("conversationId", createChannel.getId().toString())
-                .queryParam("startEpoch", "0")
-                .queryParam("endEpoch", String.valueOf(OffsetDateTime.now().toInstant().toEpochMilli())))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();  
-        List<MessageResponse> messages = objectMapper.readValue(searchResponse ,new TypeReference<List<MessageResponse>>(){});
+        String searchResponse = mockMvc
+                .perform(get("/cacophony/conversations/search").header("Authorization", "Bearer " + token)
+                        .queryParam("conversationId", createChannel.getId().toString()).queryParam("startEpoch", "0")
+                        .queryParam("endEpoch", String.valueOf(OffsetDateTime.now().toInstant().toEpochMilli())))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        List<MessageResponse> messages = objectMapper.readValue(searchResponse,
+                new TypeReference<List<MessageResponse>>() {
+                });
         assertNotNull(messages);
         assertTrue(messages.size() == 3);
     }
@@ -292,97 +271,80 @@ class CacophonyApplicationTests {
         chatRequest.setMembers(List.of(userService.getUserFromName(TEST_USER).getId()));
 
         // Create the chat and get its ID
-        String chatResponse = mockMvc.perform(post("/cacophony/chats")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(chatRequest)))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        
+        String chatResponse = mockMvc
+                .perform(post("/cacophony/chats").header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(chatRequest)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
         String chatId = objectMapper.readTree(chatResponse).get("id").asText();
 
         sendMessage(chatId, token);
         Thread.sleep(1000);
         Instant startSearchInterval = Instant.now();
         sendMessage(chatId, token);
-        
+
         Instant endSearchInterval = Instant.now();
         Thread.sleep(1000);
         sendMessage(chatId, token);
 
-        String searchResponse = mockMvc.perform(get("/cacophony/conversations/search")
-                .header("Authorization", "Bearer " + token)
-                .queryParam("conversationId", chatId)
-                .queryParam("startEpoch", String.valueOf(startSearchInterval.toEpochMilli()))
-                .queryParam("endEpoch", String.valueOf(endSearchInterval.toEpochMilli())))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();  
-        List<MessageResponse> messages = objectMapper.readValue(searchResponse ,new TypeReference<List<MessageResponse>>(){});
+        String searchResponse = mockMvc
+                .perform(get("/cacophony/conversations/search").header("Authorization", "Bearer " + token)
+                        .queryParam("conversationId", chatId)
+                        .queryParam("startEpoch", String.valueOf(startSearchInterval.toEpochMilli()))
+                        .queryParam("endEpoch", String.valueOf(endSearchInterval.toEpochMilli())))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        List<MessageResponse> messages = objectMapper.readValue(searchResponse,
+                new TypeReference<List<MessageResponse>>() {
+                });
         assertNotNull(messages);
         assertTrue(messages.size() == 1);
     }
 
-private String generateToken() throws Exception {
-    // First create a user that we can authenticate
-    CreateUserRequest createRequest = new CreateUserRequest();
-    createRequest.setUsername(TEST_USER);
-    createRequest.setPassword(TEST_PASSWORD);
-    createRequest.setEmail(TEST_EMAIL);
+    private String generateToken() throws Exception {
+        // First create a user that we can authenticate
+        CreateUserRequest createRequest = new CreateUserRequest();
+        createRequest.setUsername(TEST_USER);
+        createRequest.setPassword(TEST_PASSWORD);
+        createRequest.setEmail(TEST_EMAIL);
 
-    // Create the user first
-    mockMvc.perform(post("/cacophony/users/addNewUser")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(createRequest)))
-            .andExpect(status().isOk());
+        // Create the user first
+        mockMvc.perform(post("/cacophony/users/addNewUser").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createRequest))).andExpect(status().isOk());
 
-    // Create auth request - Use the same credentials as the created user
-    AuthRequest authRequest = new AuthRequest();
-    authRequest.setUsername(TEST_USER);        // Changed from "authuser"
-    authRequest.setPassword(TEST_PASSWORD);    // Changed from "password123"
+        // Create auth request - Use the same credentials as the created user
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setUsername(TEST_USER); // Changed from "authuser"
+        authRequest.setPassword(TEST_PASSWORD); // Changed from "password123"
 
-    // Test token generation
-    String tokenResponse = mockMvc.perform(post("/cacophony/users/generateToken")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(authRequest)))
-            .andExpect(status().isOk())
-            .andReturn()
-            .getResponse()
-            .getContentAsString();
-    return objectMapper.readValue(tokenResponse, new TypeReference<GenerateTokenResponse>(){}).getToken();
-}
-
-private String getRandomString() {
-    String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-    StringBuilder salt = new StringBuilder();
-    Random rnd = new Random();
-    while (salt.length() < 18) { // length of the random string.
-        int index = (int) (rnd.nextFloat() * SALTCHARS.length());
-        salt.append(SALTCHARS.charAt(index));
+        // Test token generation
+        String tokenResponse = mockMvc
+                .perform(post("/cacophony/users/generateToken").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(authRequest)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        return objectMapper.readValue(tokenResponse, new TypeReference<GenerateTokenResponse>() {
+        }).getToken();
     }
-    String saltStr = salt.toString();
-    return saltStr;
-}
 
-private void sendMessage(String conversationId, String token) throws Exception {
-    CreateMessageRequest createMessageRequest = CreateMessageRequest
-    .builder()
-    .conversationId(UUID.fromString(conversationId))
-    .message(getRandomString())
-    .build();
+    private String getRandomString() {
+        String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        StringBuilder salt = new StringBuilder();
+        Random rnd = new Random();
+        while (salt.length() < 18) { // length of the random string.
+            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
+            salt.append(SALTCHARS.charAt(index));
+        }
+        String saltStr = salt.toString();
+        return saltStr;
+    }
 
-    // Test sending a message
-     mockMvc.perform(post("/cacophony/messages")
-        .header("Authorization", "Bearer " + token)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(createMessageRequest)))
-        .andExpect(status().isOk())
-        .andReturn()
-        .getResponse()
-        .getContentAsString();  
-}
+    private void sendMessage(String conversationId, String token) throws Exception {
+        CreateMessageRequest createMessageRequest = CreateMessageRequest.builder()
+                .conversationId(UUID.fromString(conversationId)).message(getRandomString()).build();
+
+        // Test sending a message
+        mockMvc.perform(post("/cacophony/messages").header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(createMessageRequest)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+    }
 
 }

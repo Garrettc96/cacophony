@@ -18,7 +18,7 @@ public class ServletRequestCachedBody extends HttpServletRequestWrapper {
     public ServletRequestCachedBody(HttpServletRequest request) throws IOException {
         super(request);
         this.body = getBodyAsByteArray(request);
-        //TODO Auto-generated constructor stub
+        // TODO Auto-generated constructor stub
     }
 
     @Override
@@ -40,11 +40,11 @@ public class ServletRequestCachedBody extends HttpServletRequestWrapper {
                 return byteArrayInputStream.read();
             }
 
-			@Override
-			public void setReadListener(ReadListener listener) {
-				// TODO Auto-generated method stub
-				
-			}
+            @Override
+            public void setReadListener(ReadListener listener) {
+                // TODO Auto-generated method stub
+
+            }
         };
     }
 
@@ -64,5 +64,4 @@ public class ServletRequestCachedBody extends HttpServletRequestWrapper {
         return stringBuilder.toString().getBytes(Charset.forName("UTF-8"));
     }
 
-    
 }

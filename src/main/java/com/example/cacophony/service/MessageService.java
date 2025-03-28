@@ -8,7 +8,11 @@ import java.util.UUID;
 
 public interface MessageService {
     public Message createMessage(Message message);
+
     public Message getMessage(String id);
-    public List<Message> getMessagesInConversationBetweenTimes(UUID conversationId, OffsetDateTime startTime, OffsetDateTime endTime);
+
+    public List<Message> getMessagesInConversationBetweenTimes(UUID conversationId, OffsetDateTime startTime,
+            OffsetDateTime endTime);
+
     public boolean canUserAccessMessage(UUID userId, String messageId);
 }

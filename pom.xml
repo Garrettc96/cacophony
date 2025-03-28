@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.example</groupId>
     <artifactId>cacophony</artifactId>
-    <version>0.0.7</version>
+    <version>0.0.4</version>
     <name>cacophony</name>
     <description>cacophony</description>
     <url/>
@@ -181,7 +181,18 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <configFile>src/main/resources/eclipse-java-google-style.xml</configFile>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-
 </project>

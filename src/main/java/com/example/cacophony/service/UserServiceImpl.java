@@ -24,6 +24,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -36,25 +37,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserFromName(String userName) {
-        return this.userRepository.findByUsername(userName).orElseThrow(() -> new UsernameNotFoundException(
-            String.format("Username %s not found", userName)
-        ));
+        return this.userRepository.findByUsername(userName)
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("Username %s not found", userName)));
     }
 
     @Override
-    public User createUser(User user){
+    public User createUser(User user) {
         try {
-            return this.userRepository.save(
-                User.withPassword(
-                    User.withRoles(
-                        user,
-                        List.of(
-                            UserRole.USER_ROLE
-                        )
-                    ),
-                    this.passwordEncoder.encode(user.getPassword())
-                )
-            );
+            return this.userRepository.save(User.withPassword(User.withRoles(user, List.of(UserRole.USER_ROLE)),
+                    this.passwordEncoder.encode(user.getPassword())));
         } catch (DataIntegrityViolationException ex) {
             // Unique constraint is violated
             throw new DuplicateEntityException("User already exists", ex, User.class);
@@ -78,12 +69,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> validateUsers(List<User> users) {
-        return users.stream().map((User user) -> this.getUserFromId(user.getId()))
-                .map((User user) -> {
-                    if (user == null) {
-                        log.error("User {} not found", user);
-                        throw new NotFoundException("User not found");
-                    } return user;
-                }).toList();
+        return users.stream().map((User user) -> this.getUserFromId(user.getId())).map((User user) -> {
+            if (user == null) {
+                log.error("User {} not found", user);
+                throw new NotFoundException("User not found");
+            }
+            return user;
+        }).toList();
     }
 }

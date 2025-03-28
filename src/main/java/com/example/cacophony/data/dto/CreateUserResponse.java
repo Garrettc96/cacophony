@@ -19,11 +19,6 @@ public class CreateUserResponse {
     private OffsetDateTime lastLogin;
 
     public static CreateUserResponse fromUser(User user) {
-        return new CreateUserResponse(
-            user.getId(),
-            user.getUsername(),
-            user.getEmail(),
-            null
-        );
+        return new CreateUserResponse(user.getId(), user.getUsername(), user.getEmail(), null);
     }
 }

@@ -35,12 +35,14 @@ public class BeanSetup {
     }
 
     @Bean
-    public ChatService chatService(ChatRepository chatRepository, ConversationRepository conversationRepository, UserService userService) {
+    public ChatService chatService(ChatRepository chatRepository, ConversationRepository conversationRepository,
+            UserService userService) {
         return new ChatServiceImpl(chatRepository, conversationRepository, userService);
     }
 
     @Bean
-    public ChannelService channelService(ChannelRepository channelRepository, ConversationRepository conversationRepository, UserService userService) {
+    public ChannelService channelService(ChannelRepository channelRepository,
+            ConversationRepository conversationRepository, UserService userService) {
         return new ChannelServiceImpl(channelRepository, conversationRepository, userService);
     }
 
@@ -60,11 +62,12 @@ public class BeanSetup {
     }
 
     @Bean
-    public ResourceAccessFilter resourceAccessFilter(MessageService messageService, ConversationService conversationService, UserService userService,
-            ChatService chatService, ChannelService channelService) {
+    public ResourceAccessFilter resourceAccessFilter(MessageService messageService,
+            ConversationService conversationService, UserService userService, ChatService chatService,
+            ChannelService channelService) {
         return new ResourceAccessFilter(messageService, conversationService, userService, chatService, channelService);
     }
-    
+
     @Bean
     public ModelMapper modelMapper(UserService userService) {
         return new ModelMapper(userService);

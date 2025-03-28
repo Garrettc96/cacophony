@@ -10,5 +10,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ChatRepository extends ListCrudRepository<Chat, UUID> {
-  List<Chat> findByCreatedAtBetween(OffsetDateTime startTime, OffsetDateTime endTime);
+    List<Chat> findByCreatedAtBetween(OffsetDateTime startTime, OffsetDateTime endTime);
 }

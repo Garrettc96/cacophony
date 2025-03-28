@@ -18,6 +18,7 @@ import java.util.UUID;
 public class MessageController {
     MessageService messageService;
     ModelMapper modelMapper;
+
     public MessageController(MessageService messageService, ModelMapper modelMapper) {
         this.messageService = messageService;
         this.modelMapper = modelMapper;
@@ -26,15 +27,12 @@ public class MessageController {
     @PostMapping
     public ResponseEntity<MessageResponse> createMessage(@RequestBody CreateMessageRequest request) {
         return ResponseEntity.ok(modelMapper.messageToResponse(
-                this.messageService.createMessage(modelMapper.createMessageRequestToMessage(request))
-        ));
+                this.messageService.createMessage(modelMapper.createMessageRequestToMessage(request))));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<MessageResponse> getMessage(@PathVariable String id) {
-        return ResponseEntity.ok(modelMapper.messageToResponse(
-                this.messageService.getMessage(id)
-        ));
+        return ResponseEntity.ok(modelMapper.messageToResponse(this.messageService.getMessage(id)));
     }
 
 }

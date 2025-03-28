@@ -1,4 +1,5 @@
 package com.example.cacophony.controllers;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,13 +16,13 @@ import com.example.cacophony.service.MessageService;
 
 import static com.example.cacophony.util.TimeUtil.epochToTimestamp;
 
-
 @RestController
 @RequestMapping("conversations")
 public class ConversationController {
 
     MessageService messageService;
     private final ModelMapper modelMapper;
+
     public ConversationController(MessageService messageService, ModelMapper modelMapper) {
         this.messageService = messageService;
         this.modelMapper = modelMapper;
@@ -29,15 +30,10 @@ public class ConversationController {
 
     @GetMapping("/search")
     public ResponseEntity<List<MessageResponse>> searchMessages(
-        @RequestParam(name="conversationId") UUID conversationId,
-        @RequestParam(name = "startEpoch") long startEpoch,
-        @RequestParam(name = "endEpoch") long endEpoch) {
-        return ResponseEntity.of(
-            Optional.of(
-                modelMapper.listOfMessagesToRespones(
-                this.messageService.getMessagesInConversationBetweenTimes(conversationId, epochToTimestamp(startEpoch), epochToTimestamp(endEpoch)))
-            )
-        );
+            @RequestParam(name = "conversationId") UUID conversationId,
+            @RequestParam(name = "startEpoch") long startEpoch, @RequestParam(name = "endEpoch") long endEpoch) {
+        return ResponseEntity.of(Optional
+                .of(modelMapper.listOfMessagesToRespones(this.messageService.getMessagesInConversationBetweenTimes(
+                        conversationId, epochToTimestamp(startEpoch), epochToTimestamp(endEpoch)))));
     }
 }
-

@@ -20,7 +20,9 @@ public class ChatServiceImpl implements ChatService {
     private final ChatRepository chatRepository;
     private final ConversationRepository conversationRepository;
     private final UserService userService;
-    public ChatServiceImpl(ChatRepository chatRepository, ConversationRepository conversationRepository, UserService userService) {
+
+    public ChatServiceImpl(ChatRepository chatRepository, ConversationRepository conversationRepository,
+            UserService userService) {
         this.chatRepository = chatRepository;
         this.conversationRepository = conversationRepository;
         this.userService = userService;
@@ -28,16 +30,14 @@ public class ChatServiceImpl implements ChatService {
 
     public Chat createChat(final Chat chat) {
         List<User> chatMembers = this.userService.validateUsers(chat.getConversation().getMembers());
-        Conversation conversation = this.conversationRepository.save(Conversation.builder()
-                .members(chatMembers)
-                .type(chat.getConversation().getType())
-                .build()
-        );
+        Conversation conversation = this.conversationRepository
+                .save(Conversation.builder().members(chatMembers).type(chat.getConversation().getType()).build());
         return chatRepository.save(Chat.of(chat, conversation));
     }
 
     public Chat getChat(String chatId) {
-        return chatRepository.findById(UUID.fromString(chatId)).orElseThrow(() -> new NotFoundException("Chat not found"));
+        return chatRepository.findById(UUID.fromString(chatId))
+                .orElseThrow(() -> new NotFoundException("Chat not found"));
     }
 
     public List<Chat> getChatsByTimestamp(OffsetDateTime startTime, OffsetDateTime endTime) {
@@ -46,10 +46,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional(readOnly = true)
-        public boolean canUserAccessChat(UUID userId, String chatId) {
-        return getChat(chatId)
-            .getConversation()
-            .getMembers()
-            .contains(User.fromId(userId));
-        }
+    public boolean canUserAccessChat(UUID userId, String chatId) {
+        return getChat(chatId).getConversation().getMembers().contains(User.fromId(userId));
+    }
 }

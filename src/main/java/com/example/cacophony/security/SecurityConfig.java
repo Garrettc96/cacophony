@@ -24,52 +24,50 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
 
-  private JwtAuthFilter authFilter;
-  UserDetailsService userService;
-  ResourceAccessFilter resourceAccessFilter;
-  CacheRequestBodyFilter cacheRequestBodyFilter;
+    private JwtAuthFilter authFilter;
+    UserDetailsService userService;
+    ResourceAccessFilter resourceAccessFilter;
+    CacheRequestBodyFilter cacheRequestBodyFilter;
 
-  public SecurityConfig(JwtAuthFilter jwtAuthFilter, UserService userService, ResourceAccessFilter resourceAccessFilter,
-      CacheRequestBodyFilter cacheRequestBodyFilter) {
-    this.authFilter = jwtAuthFilter;
-    this.userService = userService;
-    this.resourceAccessFilter = resourceAccessFilter;
-    this.cacheRequestBodyFilter = cacheRequestBodyFilter;
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, UserService userService,
+            ResourceAccessFilter resourceAccessFilter, CacheRequestBodyFilter cacheRequestBodyFilter) {
+        this.authFilter = jwtAuthFilter;
+        this.userService = userService;
+        this.resourceAccessFilter = resourceAccessFilter;
+        this.cacheRequestBodyFilter = cacheRequestBodyFilter;
 
-  }
+    }
 
-  @Bean
-  public AuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder) {
-    DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-    authenticationProvider.setUserDetailsService(this.userService);
-    authenticationProvider.setPasswordEncoder(passwordEncoder);
-    return authenticationProvider;
-  }
+    @Bean
+    public AuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(this.userService);
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
+        return authenticationProvider;
+    }
 
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
-    http
-        .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/auth/welcome", "/users/addNewUser", "/users/generateToken").permitAll()
-            .requestMatchers("/actuator/**").permitAll()
-            .requestMatchers("/cacophony/auth/welcome", "/cacophony/users/addNewUser", "/cacophony/users/generateToken").permitAll()
-            .requestMatchers("/auth/user/**").hasAuthority("ROLE_USER")
-            .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
-            .anyRequest().authenticated() // Protect all other endpoints
-        )
-        .sessionManagement(sess -> sess
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions
-        )
-        .authenticationProvider(authenticationProvider) // Custom authentication provider
-        .addFilterAfter(cacheRequestBodyFilter, UsernamePasswordAuthenticationFilter.class)
-        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class) // Add JWT filter
-        .addFilterAfter(resourceAccessFilter, CacheRequestBodyFilter.class);
-    return http.build();
-  }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider)
+            throws Exception {
+        http.csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
+                .authorizeHttpRequests(
+                        auth -> auth.requestMatchers("/auth/welcome", "/users/addNewUser", "/users/generateToken")
+                                .permitAll().requestMatchers("/actuator/**").permitAll()
+                                .requestMatchers("/cacophony/auth/welcome", "/cacophony/users/addNewUser",
+                                        "/cacophony/users/generateToken")
+                                .permitAll().requestMatchers("/auth/user/**").hasAuthority("ROLE_USER")
+                                .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN").anyRequest()
+                                .authenticated() // Protect all other endpoints
+                ).sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions
+                ).authenticationProvider(authenticationProvider) // Custom authentication provider
+                .addFilterAfter(cacheRequestBodyFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class) // Add JWT filter
+                .addFilterAfter(resourceAccessFilter, CacheRequestBodyFilter.class);
+        return http.build();
+    }
 
-  @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-    return config.getAuthenticationManager();
-  }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
 }

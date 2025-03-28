@@ -8,7 +8,10 @@ import java.util.UUID;
 
 public interface ChatService {
     public Chat createChat(Chat chat);
+
     public Chat getChat(String chatId);
+
     public List<Chat> getChatsByTimestamp(OffsetDateTime startEpoch, OffsetDateTime endEpoch);
+
     public boolean canUserAccessChat(UUID userId, String chatId);
 }

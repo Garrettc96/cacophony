@@ -28,11 +28,13 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Message getMessage(String id) {
-        return messageRepository.findById(UUID.fromString(id)).orElseThrow(() -> new NotFoundException("Message not found"));
+        return messageRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new NotFoundException("Message not found"));
     }
 
     @Override
-    public List<Message> getMessagesInConversationBetweenTimes(UUID conversationId, OffsetDateTime startTime, OffsetDateTime endTime) {
+    public List<Message> getMessagesInConversationBetweenTimes(UUID conversationId, OffsetDateTime startTime,
+            OffsetDateTime endTime) {
         return this.messageRepository.findByConversationIdAndCreatedAtBetween(conversationId, startTime, endTime);
     }
 

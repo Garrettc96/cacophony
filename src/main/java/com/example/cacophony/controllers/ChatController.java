@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class ChatController {
     private final ChatService chatService;
     private final ModelMapper modelMapper;
+
     public ChatController(ChatService chatService, ModelMapper modelMapper) {
         this.chatService = chatService;
         this.modelMapper = modelMapper;
@@ -23,7 +24,8 @@ public class ChatController {
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<CreateChatResponse> createChat(@Valid @RequestBody CreateChatRequest request) {
-        return ResponseEntity.ok(modelMapper.chatToCreateResponse(this.chatService.createChat(modelMapper.requestToChat(request))));
+        return ResponseEntity
+                .ok(modelMapper.chatToCreateResponse(this.chatService.createChat(modelMapper.requestToChat(request))));
     }
 
     @GetMapping("/{id}")

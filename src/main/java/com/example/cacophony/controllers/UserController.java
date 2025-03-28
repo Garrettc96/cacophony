@@ -1,4 +1,5 @@
 package com.example.cacophony.controllers;
+
 import com.example.cacophony.data.UserRole;
 import com.example.cacophony.data.dto.CreateUserRequest;
 import com.example.cacophony.data.dto.CreateUserResponse;
@@ -34,7 +35,9 @@ public class UserController {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final ModelMapper modelMapper;
-    public UserController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager, ModelMapper modelMapper) {
+
+    public UserController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager,
+            ModelMapper modelMapper) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
@@ -66,32 +69,22 @@ public class UserController {
     @PostMapping("/generateToken")
     public ResponseEntity<GenerateTokenResponse> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
-        );
+                new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
         if (authentication.isAuthenticated()) {
-            return ResponseEntity.ok(
-                GenerateTokenResponse.builder()
-                        .token(jwtService.generateToken(authRequest.getUsername()))
-                        .userId(userService.getUserFromName(authRequest.getUsername()).getId())
-                        .createdAt(Jwt.getIssuedAt())
-                        .validUntil(Jwt.getExpiration())
-                        .build()
-            );
-            
+            return ResponseEntity
+                    .ok(GenerateTokenResponse.builder().token(jwtService.generateToken(authRequest.getUsername()))
+                            .userId(userService.getUserFromName(authRequest.getUsername()).getId())
+                            .createdAt(Jwt.getIssuedAt()).validUntil(Jwt.getExpiration()).build());
+
         } else {
             throw new UsernameNotFoundException("Invalid user request!");
         }
     }
 
-
     @PostMapping()
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<CreateUserResponse> createUser(@RequestBody CreateUserRequest createRequest) {
-        return ResponseEntity.ok(modelMapper.userToResponse(
-                this.userService.createUser(
-                        modelMapper.requestToUser(createRequest)
-                )
-                )
-        );
+        return ResponseEntity
+                .ok(modelMapper.userToResponse(this.userService.createUser(modelMapper.requestToUser(createRequest))));
     }
 }

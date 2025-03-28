@@ -1,6 +1,5 @@
 package com.example.cacophony.data.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,8 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 enum CHANNEL_VISIBILITY {
-    PUBLIC,
-    PRIVATE;
+    PUBLIC, PRIVATE;
 }
 
 @Entity
@@ -42,13 +40,7 @@ public class Channel implements Serializable {
     private OffsetDateTime updatedAt;
 
     public static Channel of(Channel channel, Conversation conversation) {
-        return Channel.builder()
-                .conversation(conversation)
-                .description(channel.getDescription())
-                .name(channel.getName())
-                .visibility(channel.visibility)
-                .build();
+        return Channel.builder().conversation(conversation).description(channel.getDescription())
+                .name(channel.getName()).visibility(channel.visibility).build();
     }
 }
-
-

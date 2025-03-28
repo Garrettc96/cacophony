@@ -29,10 +29,10 @@ public class Message {
     @ManyToOne
     @JoinColumn(name = "conversation_id")
     private Conversation conversation;
-    @Column(name="created_at")
+    @Column(name = "created_at")
     @CreationTimestamp
     private OffsetDateTime createdAt;
-    @Column(name="updated_at")
+    @Column(name = "updated_at")
     @UpdateTimestamp
     private OffsetDateTime updatedAt;
 }

@@ -23,6 +23,7 @@ import jakarta.validation.Valid;
 public class ChannelController {
     private final ChannelService channelService;
     private final ModelMapper modelMapper;
+
     public ChannelController(ChannelService channelService, ModelMapper modelMapper) {
         this.channelService = channelService;
         this.modelMapper = modelMapper;
@@ -31,9 +32,8 @@ public class ChannelController {
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<CreateChannelResponse> createChannel(@Valid @RequestBody CreateChannelRequest request) {
-        return ResponseEntity.ok(
-            modelMapper.channelToCreateResponse(this.channelService.createChannel(modelMapper.requestToChannel(request)))
-        );
+        return ResponseEntity.ok(modelMapper
+                .channelToCreateResponse(this.channelService.createChannel(modelMapper.requestToChannel(request))));
     }
 
     @GetMapping("/{id}")

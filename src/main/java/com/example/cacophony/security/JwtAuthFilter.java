@@ -19,44 +19,41 @@ import java.io.IOException;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-  UserService userService;
-  JwtService jwtService;
+    UserService userService;
+    JwtService jwtService;
 
-  public JwtAuthFilter(UserService userService, JwtService jwtService) {
-    this.userService = userService;
-    this.jwtService = jwtService;
-  }
-
-  @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-      FilterChain filterChain) throws ServletException, IOException {
-    String authHeader = request.getHeader("Authorization");
-    String token = null;
-    String username = null;
-
-    // Check if the header starts with "Bearer "
-    if (authHeader != null && authHeader.startsWith("Bearer ")) {
-      token = authHeader.substring(7); // Extract token
-      username = jwtService.extractUsername(token); // Extract username from token
+    public JwtAuthFilter(UserService userService, JwtService jwtService) {
+        this.userService = userService;
+        this.jwtService = jwtService;
     }
 
-    // If the token is valid and no authentication is set in the context
-    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-      UserDetails userDetails = userService.getUserDetailsFromUser(userService.getUserFromName(username));
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        String authHeader = request.getHeader("Authorization");
+        String token = null;
+        String username = null;
 
-      // Validate token and set authentication
-      if (jwtService.validateToken(token, userDetails)) {
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-            userDetails,
-            null,
-            userDetails.getAuthorities()
-        );
-        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-      }
+        // Check if the header starts with "Bearer "
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7); // Extract token
+            username = jwtService.extractUsername(token); // Extract username from token
+        }
+
+        // If the token is valid and no authentication is set in the context
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userService.getUserDetailsFromUser(userService.getUserFromName(username));
+
+            // Validate token and set authentication
+            if (jwtService.validateToken(token, userDetails)) {
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
+                        null, userDetails.getAuthorities());
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+
+        // Continue the filter chain
+        filterChain.doFilter(request, response);
     }
-
-    // Continue the filter chain
-    filterChain.doFilter(request, response);
-  }
 }

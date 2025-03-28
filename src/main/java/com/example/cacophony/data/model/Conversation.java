@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-
-
 @Converter(autoApply = true)
 class ConversationTypeConverter implements AttributeConverter<ConversationType, String> {
 
@@ -30,9 +28,7 @@ class ConversationTypeConverter implements AttributeConverter<ConversationType, 
             return null;
         }
 
-        return Stream.of(ConversationType.values())
-                .filter(c -> c.name().equals(code))
-                .findFirst()
+        return Stream.of(ConversationType.values()).filter(c -> c.name().equals(code)).findFirst()
                 .orElseThrow(IllegalArgumentException::new);
     }
 }
@@ -57,15 +53,11 @@ public class Conversation {
     List<User> members;
 
     public static Conversation of(UUID id, ConversationType type) {
-        return Conversation.builder()
-                .id(id)
-                .type(type)
-                .build();
+        return Conversation.builder().id(id).type(type).build();
     }
+
     public static Conversation of(ConversationType type) {
-        return Conversation.builder()
-                .type(type)
-                .build();
+        return Conversation.builder().type(type).build();
     }
 
 }

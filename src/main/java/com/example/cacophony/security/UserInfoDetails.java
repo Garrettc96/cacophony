@@ -11,30 +11,31 @@ import java.util.UUID;
 
 public class UserInfoDetails implements UserDetails {
 
-  public String userName;
-  public String password;
-  public UUID userId;
-  public List<SimpleGrantedAuthority> authorities;
+    public String userName;
+    public String password;
+    public UUID userId;
+    public List<SimpleGrantedAuthority> authorities;
 
-  public UserInfoDetails(User user) {
-    this.userName = user.getUsername();
-    this.password = user.getPassword();
-    this.userId = user.getId();
-    this.authorities = user.getRoles().stream().map((UserRole role) -> new SimpleGrantedAuthority(role.toString())).toList();
-  }
+    public UserInfoDetails(User user) {
+        this.userName = user.getUsername();
+        this.password = user.getPassword();
+        this.userId = user.getId();
+        this.authorities = user.getRoles().stream().map((UserRole role) -> new SimpleGrantedAuthority(role.toString()))
+                .toList();
+    }
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return this.authorities;
-  }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.authorities;
+    }
 
-  @Override
-  public String getPassword() {
-    return this.password;
-  }
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
 
-  @Override
-  public String getUsername() {
-    return this.userName;
-  }
+    @Override
+    public String getUsername() {
+        return this.userName;
+    }
 }

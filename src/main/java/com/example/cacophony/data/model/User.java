@@ -27,10 +27,7 @@ public class User implements Serializable {
     @Access(AccessType.PROPERTY)
     UUID id;
     @ManyToMany
-    @JoinTable(
-            name = "user_conversations",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "channel_id"))
+    @JoinTable(name = "user_conversations", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "channel_id"))
     Set<Conversation> conversations;
     @Column(unique = true)
     String username;
@@ -42,6 +39,7 @@ public class User implements Serializable {
     OffsetDateTime createdAt;
     @LastModifiedDate
     OffsetDateTime updatedAt;
+
     public static User fromId(UUID id) {
         return User.builder().id(id).build();
     }
@@ -49,35 +47,20 @@ public class User implements Serializable {
     public static User fromName(String name) {
         return User.builder().username(name).build();
     }
+
     public static User withRoles(User user, List<UserRole> roles) {
-        return User.builder()
-            .id(user.id)
-            .conversations(user.conversations)
-            .roles(roles)
-            .username(user.username)
-            .password(user.password)
-            .email(user.email)
-            .createdAt(user.createdAt)
-            .updatedAt(user.updatedAt)
-            .build();
+        return User.builder().id(user.id).conversations(user.conversations).roles(roles).username(user.username)
+                .password(user.password).email(user.email).createdAt(user.createdAt).updatedAt(user.updatedAt).build();
     }
+
     public static User withPassword(User user, String password) {
-        return User.builder()
-            .id(user.id)
-            .conversations(user.conversations)
-            .roles(user.roles)
-            .username(user.username)
-            .password(password)
-            .email(user.email)
-            .createdAt(user.createdAt)
-            .updatedAt(user.updatedAt)
-            .build();
+        return User.builder().id(user.id).conversations(user.conversations).roles(user.roles).username(user.username)
+                .password(password).email(user.email).createdAt(user.createdAt).updatedAt(user.updatedAt).build();
     }
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof User
-            && ((User) o).getId().equals(this.id);
+        return o instanceof User && ((User) o).getId().equals(this.id);
 
     }
 }

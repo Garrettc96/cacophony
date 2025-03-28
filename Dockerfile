@@ -1,9 +1,3 @@
-FROM maven:3.9-amazoncorretto-21-alpine AS test
-
-WORKDIR /test
-COPY . .
-RUN mvn clean install
-
 FROM maven:3.9-amazoncorretto-21-alpine as build
 WORKDIR /build
 COPY . .
