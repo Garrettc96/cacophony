@@ -6,5 +6,6 @@ echo "Parsed version ${version}";
 export dockerTag="public.ecr.aws/j6e6l3c7/cacophony:${version}";
 echo "Publishing new docker tag ${dockerTag}";
 docker build . -t ${dockerTag};
+echo "${AWS_ACCESS_KEY_ID}"
 aws ecr-public get-login-password --region us-east-1  | docker login --username AWS --password-stdin public.ecr.aws/j6e6l3c7
 docker push ${dockerTag};
