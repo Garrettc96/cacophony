@@ -3,7 +3,9 @@ name: Publish CI
 on:
   push:
     branches: [ "*" ]
-
+permissions:
+    contents: write
+    
 jobs:
   build:
 
