@@ -5,4 +5,8 @@ test:
 
 .PHONY:publish
 publish:
-	./publish.sh
+	./scripts/publish.sh
+
+.PHONY:performance
+performance:
+	./scripts/performance_test.sh
