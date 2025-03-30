@@ -18,14 +18,10 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         architecture: x64
-    - name: Login to Amazon ECR Public
-      id: login-ecr-public
-      uses: aws-actions/amazon-ecr-login@v2
-      with:
-        registry-type: public
-      env:
-        AWS_DEFAULT_REGION: us-east-1
     - name: Publish docker image
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       run: make publish
     - name: "Push new version back to github"
       run: |
