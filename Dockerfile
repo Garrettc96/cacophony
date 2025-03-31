@@ -3,7 +3,7 @@ WORKDIR /build
 COPY . .
 RUN mvn clean package -DskipTests
 
-FROM bellsoft/liberica-openjdk-alpine:21 AS execute
+FROM bellsoft/liberica-openjdk-alpine:21-aarch64 AS execute
 WORKDIR /app
 COPY --from=build /build/target/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
