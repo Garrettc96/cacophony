@@ -1,6 +1,7 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { uuidv4 } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
+import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
 
 const BASE_URL = __ENV.BASE_URL
 
@@ -145,7 +146,7 @@ export default function () {
     });
 
   }
-
+  sleep(0.1)
   // Search messages by timestamp
   const startTime = 0; // Beginning of time
   const endTime = Date.now(); // Current time
@@ -176,7 +177,7 @@ export default function () {
     });
 
   }
-
+  sleep(0.1)
   // Search messages by timestamp
   const chatStartTime = 0; // Beginning of time
   const chatEndTime = Date.now(); // Current time
