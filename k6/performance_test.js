@@ -2,7 +2,7 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { uuidv4 } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
 
-const BASE_URL = 'http://localhost:8080/cacophony';
+const BASE_URL = __ENV.BASE_URL
 
 export const options = {
   vus: 1,
@@ -122,7 +122,7 @@ export default function () {
   check(tokenResponse, {
     'token generated': (r) => r.status === 200,
   });
-  
+  console.log(tokenResponse)
   const parsedTokenResponse = JSON.parse(tokenResponse.body)
   const token = parsedTokenResponse.token
   const userId = parsedTokenResponse.userId;
