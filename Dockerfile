@@ -1,9 +1,9 @@
-FROM maven:3.9-amazoncorretto-21-alpine as build
+FROM maven:3.9-amazoncorretto-21-alpine AS build
 WORKDIR /build
 COPY . .
 RUN mvn clean package -DskipTests
 
-FROM bellsoft/liberica-openjdk-alpine:21-aarch64 AS execute
+FROM bellsoft/liberica-openjdk-alpine:21 AS execute
 WORKDIR /app
 COPY --from=build /build/target/*.jar app.jar
 RUN apk add --no-cache curl && \
