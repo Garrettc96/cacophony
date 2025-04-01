@@ -2,7 +2,7 @@ name: Publish CI
 
 on:
   push:
-    branches: [ "*" ]
+    branches: [ "main" ]
 permissions:
     contents: write
 
