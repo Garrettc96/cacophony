@@ -1,0 +1,16 @@
+meta {
+  name: SearchMessagesText
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:{{PORT}}/cacophony/conversations/search?conversationId=727b6f76-70d3-4b5b-bde2-5f53e7bdfd50&queryText=a
+  body: none
+  auth: inherit
+}
+
+params:query {
+  conversationId: 727b6f76-70d3-4b5b-bde2-5f53e7bdfd50
+  queryText: a
+}

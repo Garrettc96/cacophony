@@ -5,14 +5,14 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/cacophony/users/addNewUser
+  url: http://localhost:{{PORT}}/cacophony/users/addNewUser
   body: json
   auth: none
 }
 
 body:json {
   {
-    "username": "thor55",
+    "username": "thor56",
     "password": "testThor",
     "email": "thor@gmail.com"
   }

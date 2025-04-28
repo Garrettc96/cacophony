@@ -9,5 +9,4 @@ public class CacophonyApplication {
     public static void main(String[] args) {
         SpringApplication.run(CacophonyApplication.class, args);
     }
-
 }

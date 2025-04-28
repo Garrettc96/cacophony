@@ -5,21 +5,18 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/cacophony/messages
+  url: http://localhost:3307/cacophony/messages
   body: json
-  auth: bearer
+  auth: inherit
 }
 
 headers {
   Content-Type: application/json
 }
 
-auth:bearer {
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0aG9yNTUiLCJpYXQiOjE3NDMwNzgyNjksImV4cCI6MTc0NDU0OTQ5OH0.AOFLs0Zyp2ppexvoOWUPECyoFmVNXQuJXwWj-Ur-LPE
-}
-
 body:json {
   {
-    "conversationId": "33d92406-a25c-4aa7-af53-4d0f8629006d"
+    "conversationId": "727b6f76-70d3-4b5b-bde2-5f53e7bdfd50",
+    "message": "string"
   }
 }

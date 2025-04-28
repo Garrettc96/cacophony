@@ -1,6 +1,7 @@
 package com.example.cacophony.service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -24,10 +25,12 @@ public class JwtServiceImpl implements JwtService {
 
     private final String secret;
     private final UserService userService;
+    private final JwtParser jwtParser;
 
     public JwtServiceImpl(@Value("${cacophony.jwt.secret}") String secret, UserService userService) {
         this.secret = secret;
         this.userService = userService;
+        this.jwtParser = Jwts.parserBuilder().setSigningKey(getSignKey()).build();
     }
 
     @Override
@@ -67,7 +70,7 @@ public class JwtServiceImpl implements JwtService {
 
     // Extract all claims from the token
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token).getBody();
+        return this.jwtParser.parseClaimsJws(token).getBody();
     }
 
     // Check if the token is expired

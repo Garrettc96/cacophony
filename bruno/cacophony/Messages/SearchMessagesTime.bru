@@ -1,0 +1,17 @@
+meta {
+  name: SearchMessagesTime
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:{{PORT}}/cacophony/conversations/search?conversationId=727b6f76-70d3-4b5b-bde2-5f53e7bdfd50&startEpoch=0&endEpoch=173863573400000
+  body: none
+  auth: inherit
+}
+
+params:query {
+  conversationId: 727b6f76-70d3-4b5b-bde2-5f53e7bdfd50
+  startEpoch: 0
+  endEpoch: 173863573400000
+}

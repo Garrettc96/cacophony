@@ -5,14 +5,19 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/cacophony/users/generateToken
+  url: http://localhost:{{PORT}}/cacophony/users/generateToken
   body: json
   auth: none
 }
 
 body:json {
   {
-      "username": "thor55",
+      "username": "thor56",
       "password": "testThor"
   }
+}
+
+vars:post-response {
+  TOKEN: res.body.token
+  USER_ID: res.body.userId
 }
