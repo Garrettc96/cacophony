@@ -39,6 +39,11 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    public List<Message> searchMessages(UUID conversationId, String searchString) {
+        return this.messageRepository.searchAndRankByFullText(conversationId, searchString);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public boolean canUserAccessMessage(UUID userId, String conversationId) {
         return this.conversationService.isUserInConversation(UUID.fromString(conversationId), userId);

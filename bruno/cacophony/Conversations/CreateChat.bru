@@ -5,9 +5,9 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/cacophony/chats
+  url: http://localhost:{{PORT}}/cacophony/chats
   body: json
-  auth: bearer
+  auth: inherit
 }
 
 headers {
@@ -16,16 +16,12 @@ headers {
   Content: 
 }
 
-auth:bearer {
-  token: {{bearer}}
-}
-
 body:json {
   {
     "name": "testChat",
     "description": "testChat",
     "members": [
-      "30db62a0-fedf-4a77-b57a-75d4a9217c03"
+      "{{USER_ID}}"
     ]
   }
 }

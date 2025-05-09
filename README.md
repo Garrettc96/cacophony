@@ -22,6 +22,7 @@ The docker image for this repo can be pushed by running `make publish`. On any m
 ### Performance testing
 Performance tests are run via K6. The scripts for executing them can be found in the k6 directory. To run them, execute:
 `make performance`. The script expects the BASE_URL environment variable to be set for the service.
+To create an SSH tunnel to the k8s cluster run the following command:
 
 ### Connectivity
 To connect to the cluster, you can create an ssh tunnel.

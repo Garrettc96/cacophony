@@ -6,7 +6,7 @@ import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporte
 const BASE_URL = __ENV.BASE_URL
 
 export const options = {
-  vus: 1,
+  vus: 5,
   duration: '30s',
 };
 
@@ -20,7 +20,7 @@ function createUser(username, password) {
       return http.post(
         `${BASE_URL}/users/addNewUser`,
         JSON.stringify(userRequest),
-        { headers: { 'Content-Type': 'application/json' } }
+        { headers: { 'Content-Type': 'application/json' , 'Connection': 'close'} }
       );
 }
 
@@ -34,7 +34,7 @@ function generateToken(userName, password) {
   return http.post(
     `${BASE_URL}/users/generateToken`,
     JSON.stringify(authRequest),
-    { headers: { 'Content-Type': 'application/json' } }
+    { headers: { 'Content-Type': 'application/json', 'Connection': 'close' } }
   );
 }
 
@@ -52,7 +52,8 @@ function createChannel(token, usersInChannel) {
     {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Connection': 'close'
       }
     }
   );
@@ -72,7 +73,8 @@ function createChat(token, usersInChannel) {
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Connection': 'close'
           }
         }
       );
@@ -90,7 +92,8 @@ function sendMessage(token, channelId) {
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Connection': 'close'
           }
         }
       );
@@ -101,7 +104,8 @@ function searchMessages(token, channelId, startEpoch, endEpoch) {
         `${BASE_URL}/conversations/search?conversationId=${channelId}&startEpoch=${startEpoch}&endEpoch=${endEpoch}`,
         {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Connection': 'close'
           }
         }
       );

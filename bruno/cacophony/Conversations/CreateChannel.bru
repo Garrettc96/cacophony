@@ -5,7 +5,22 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/cacophony/channels
-  body: none
-  auth: none
+  url: http://localhost:{{PORT}}/cacophony/channels
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: */*
+}
+
+body:json {
+  {
+    "name": "testChat",
+    "description": "testChat",
+    "members": [
+      "{{USER_ID}}"
+    ]
+  }
 }

@@ -34,5 +34,4 @@ public class MessageController {
     public ResponseEntity<MessageResponse> getMessage(@PathVariable String id) {
         return ResponseEntity.ok(modelMapper.messageToResponse(this.messageService.getMessage(id)));
     }
-
 }

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
@@ -29,6 +31,10 @@ public class Message {
     @ManyToOne
     @JoinColumn(name = "conversation_id")
     private Conversation conversation;
+    @Column(name = "fts_vector", columnDefinition = "tsvector")
+    @Basic(fetch = FetchType.LAZY) // Avoid fetching it unless needed
+    @ColumnTransformer(write = "?::tsvector")
+    private String ftsVector;
     @Column(name = "created_at")
     @CreationTimestamp
     private OffsetDateTime createdAt;

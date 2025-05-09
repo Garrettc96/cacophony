@@ -26,7 +26,7 @@ public class BeanSetup {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Password encoding
+        return new BCryptPasswordEncoder(10); // Password encoding
     }
 
     @Bean
