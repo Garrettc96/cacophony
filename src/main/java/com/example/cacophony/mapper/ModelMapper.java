@@ -4,8 +4,10 @@ import com.example.cacophony.data.dto.*;
 import com.example.cacophony.data.model.*;
 import com.example.cacophony.service.UserService;
 import com.example.cacophony.util.Identity;
+import static com.example.cacophony.util.Constants.IMAGE_UPLOAD_EXPIRATION_MINUTES;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -42,15 +44,17 @@ public class ModelMapper {
 
     public Message createMessageRequestToMessage(CreateMessageRequest createMessageRequest) {
         return Message.builder().text(createMessageRequest.getMessage())
-                .user(userService.getUserFromId(UUID.fromString(Identity.getUserId()))).conversation(Conversation
-                        .builder().id(createMessageRequest.getConversationId()).type(ConversationType.CHAT).build())
-                .build();
+                .user(userService.getUserFromId(UUID.fromString(Identity.getUserId())))
+                .conversation(Conversation.builder().id(createMessageRequest.getConversationId())
+                        .type(ConversationType.CHAT).build())
+                .s3Path(createMessageRequest.getS3Path().orElse(null)).build();
     }
 
     public MessageResponse messageToResponse(Message message) {
         return MessageResponse.builder().id(message.getId()).userId(message.getUser().getId())
                 .message(message.getText()).conversationId(message.getConversation().getId())
-                .createdAt(message.getCreatedAt()).updatedAt(message.getUpdatedAt()).build();
+                .s3Path(message.getS3Path()).createdAt(message.getCreatedAt()).updatedAt(message.getUpdatedAt())
+                .build();
     }
 
     public Channel requestToChannel(CreateChannelRequest request) {
@@ -72,5 +76,10 @@ public class ModelMapper {
             messageResponseList.add(messageToResponse(message));
         }
         return messageResponseList;
+    }
+
+    public ImageUploadResponse createImpageUploadResponse(String conversationId, String s3Path, String url) {
+        return new ImageUploadResponse(conversationId, url, s3Path,
+                OffsetDateTime.now(ZoneOffset.UTC).plusMinutes(IMAGE_UPLOAD_EXPIRATION_MINUTES));
     }
 }

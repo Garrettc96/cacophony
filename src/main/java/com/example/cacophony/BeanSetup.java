@@ -10,8 +10,12 @@ import com.example.cacophony.security.ResourceAccessFilter;
 import com.example.cacophony.service.*;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.sagemaker.model.S3Presign;
+
 import java.nio.channels.Channels;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -52,8 +56,9 @@ public class BeanSetup {
     }
 
     @Bean
-    public MessageService messageService(MessageRepository messageRepository, ConversationService conversationService) {
-        return new MessageServiceImpl(messageRepository, conversationService);
+    public MessageService messageService(MessageRepository messageRepository, ConversationService conversationService,
+            S3Presigner s3Presigner, @Value("${cacophony.s3.imageBucket}") String imageBucket) {
+        return new MessageServiceImpl(messageRepository, conversationService, s3Presigner, imageBucket);
     }
 
     @Bean
@@ -71,5 +76,10 @@ public class BeanSetup {
     @Bean
     public ModelMapper modelMapper(UserService userService) {
         return new ModelMapper(userService);
+    }
+
+    @Bean
+    public S3Presigner s3Presigner() {
+        return S3Presigner.builder().build();
     }
 }

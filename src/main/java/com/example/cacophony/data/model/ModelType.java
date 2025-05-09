@@ -19,4 +19,5 @@ public enum ModelType {
                         String.format("Unable to detect model from modelTypeString: %s", modelTypeString));
         };
     }
+
 }

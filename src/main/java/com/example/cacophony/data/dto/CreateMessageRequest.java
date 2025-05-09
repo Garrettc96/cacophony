@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Data
@@ -21,6 +22,7 @@ public final class CreateMessageRequest implements ResourceAuthorizationBody {
 
     UUID conversationId;
     String message;
+    Optional<String> s3Path;
 
     @Override
     @JsonIgnore
