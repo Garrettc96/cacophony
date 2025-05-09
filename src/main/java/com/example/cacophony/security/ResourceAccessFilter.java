@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.nio.channels.Channels;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -126,9 +127,15 @@ public class ResourceAccessFilter extends OncePerRequestFilter {
     private AuthTypeAndId parseAuthTypeAndIdFromRequest(String requestPath) {
         // GUID regex
         String id = findGuid(requestPath);
-        List<String> splitPath = Arrays.stream(requestPath.split("/")).toList();
-        String authType = splitPath.get(splitPath.size() - 2);
-        return new AuthTypeAndId(id, ModelType.fromString(authType));
+        Optional<String> authType = Arrays.stream(requestPath.split("/")).filter(p -> {
+            try {
+                ModelType.fromString(p);
+                return true;
+            } catch (Exception ex) {
+                return false;
+            }
+        }).findFirst();
+        return new AuthTypeAndId(id, ModelType.fromString(authType.get()));
     }
 
     private AuthTypeAndId parseAuthTypeAndIdFromBody(HttpServletRequest request,
@@ -194,7 +201,7 @@ public class ResourceAccessFilter extends OncePerRequestFilter {
 
         } else if (resourcePath.startsWith("/messages")) {
             // GET /messages/{id}
-            if (requestMethod.equals(GET) && resourcePath.matches("\\/messages\\/[a-z-]*")) {
+            if (requestMethod.equals(GET) && resourcePath.matches("\\/messages\\/[a-zA-Z0-9-\\/]*")) {
                 return new ResourceAccessType.ResourceAccessPathId();
                 // POST /messages
             } else if (requestMethod.equals(POST) && resourcePath.matches("\\/messages")) {

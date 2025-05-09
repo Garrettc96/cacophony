@@ -300,6 +300,32 @@ class CacophonyApplicationTests {
         assertTrue(messages.size() == 1);
     }
 
+    @Test
+    void testMessageImageUpload() throws Exception {
+        String token = generateToken();
+
+        // First create a chat to upload image to
+        CreateChatRequest chatRequest = new CreateChatRequest();
+        chatRequest.setName("Test Chat");
+        chatRequest.setDescription("A test chat room");
+        chatRequest.setMembers(List.of(userService.getUserFromName(TEST_USER).getId()));
+
+        // Create the chat and get its ID
+        String chatResponse = mockMvc
+                .perform(post("/cacophony/chats").header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(chatRequest)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        CreateChatResponse createChat = objectMapper.readValue(chatResponse, new TypeReference<CreateChatResponse>() {
+        });
+
+        // Test image upload URL generation
+        mockMvc.perform(get("/cacophony/messages/" + createChat.getId() + "/uploadImage").header("Authorization",
+                "Bearer " + token)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.conversationId").value(createChat.getId().toString()))
+                .andExpect(jsonPath("$.s3Path").exists()).andExpect(jsonPath("$.url").exists());
+    }
+
     private String generateToken() throws Exception {
         // First create a user that we can authenticate
         CreateUserRequest createRequest = new CreateUserRequest();

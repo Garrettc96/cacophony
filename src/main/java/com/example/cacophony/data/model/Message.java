@@ -28,6 +28,7 @@ public class Message {
     @JoinColumn(name = "user_id")
     private User user;
     private String text;
+    private String s3Path;
     @ManyToOne
     @JoinColumn(name = "conversation_id")
     private Conversation conversation;
