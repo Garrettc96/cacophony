@@ -1,7 +1,10 @@
 FROM maven:3.9-amazoncorretto-21-alpine AS build
 WORKDIR /build
 COPY . .
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -Dliquibase.skip -Djooq.codegen.skip
+
+FROM build AS test
+RUN mvn clean install -Dliquibase.skip -Djooq.codegen.skip
 
 FROM bellsoft/liberica-openjdk-alpine:21 AS execute
 WORKDIR /app

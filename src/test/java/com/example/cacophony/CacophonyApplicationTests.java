@@ -20,10 +20,17 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.net.URI;
+import java.net.URL;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -34,6 +41,12 @@ import org.hamcrest.CoreMatchers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import software.amazon.awssdk.http.SdkHttpMethod;
+import software.amazon.awssdk.http.SdkHttpRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import org.testcontainers.junit.jupiter.Container;
 
@@ -54,11 +67,15 @@ import static com.example.cacophony.TestConstants.TEST_EMAIL;
 import static com.example.cacophony.TestConstants.TEST_PASSWORD;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
 @TestPropertySource("classpath:application-test.properties")
+@ActiveProfiles("test")
+@Import(TestBeanSetup.class)
 class CacophonyApplicationTests {
 
     @Container
@@ -85,6 +102,9 @@ class CacophonyApplicationTests {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private S3Presigner s3PresignerMock;
 
     @BeforeEach
     public void setup() {
@@ -310,6 +330,15 @@ class CacophonyApplicationTests {
     void testMessageImageUpload() throws Exception {
         String token = generateToken();
 
+        PresignedPutObjectRequest response = mock(PresignedPutObjectRequest.class);
+        URL urlMock = mock(URL.class);
+        when(urlMock.toString()).thenReturn("localhost");
+        when(urlMock.toExternalForm()).thenReturn("localhost");
+        when(response.url()).thenReturn(urlMock);
+        SdkHttpRequest mockSdkHttpRequest = mock(SdkHttpRequest.class);
+        when(mockSdkHttpRequest.method()).thenReturn(SdkHttpMethod.GET);
+        when(response.httpRequest()).thenReturn(mockSdkHttpRequest);
+        when(s3PresignerMock.presignPutObject(any(PutObjectPresignRequest.class))).thenReturn(response);
         // First create a chat to upload image to
         CreateChatRequest chatRequest = new CreateChatRequest();
         chatRequest.setName("Test Chat");
