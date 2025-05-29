@@ -1,7 +1,7 @@
 
 .PHONY:test
 test:
-	mvn clean install
+	mvn clean install -Dliquibase.skip -Djooq.codegen.skip
 
 .PHONY:publish
 publish:
