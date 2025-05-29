@@ -218,7 +218,11 @@ public class ResourceAccessFilter extends OncePerRequestFilter {
             } else {
                 throw new NotFoundException("Resource URL not found when authorizing users request");
             }
-        } else {
+        } else if (resourcePath.startsWith("/reacts")) {
+            return new ResourceAccessType.ResourceAccessGeneral();
+        }
+
+        else {
             throw new NotFoundException("Invalid resource type found in URL while authorizing");
         }
     }

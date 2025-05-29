@@ -1,6 +1,8 @@
 package com.example.cacophony.service;
 
 import com.example.cacophony.data.model.User;
+import com.example.cacophony.jooq.tables.records.CUserRecord;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -8,15 +10,15 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService extends UserDetailsService {
-    public User createUser(User user);
+    public CUserRecord createUser(CUserRecord user);
 
-    public User getUserFromId(UUID id);
+    public CUserRecord getUserFromId(UUID id);
 
-    public UserDetails getUserDetailsFromUser(User user);
+    public UserDetails getUserDetailsFromUser(CUserRecord user);
 
-    public User getUserFromName(String name);
+    public CUserRecord getUserFromName(String name);
 
-    public List<User> listUsers();
+    public List<CUserRecord> listUsers();
 
-    public List<User> validateUsers(List<User> users);
+    public List<CUserRecord> validateUsers(List<UUID> users);
 }

@@ -1,9 +1,11 @@
 package com.example.cacophony.controllers;
 
 import com.example.cacophony.data.dto.CreateChatRequest;
-import com.example.cacophony.data.dto.CreateChatResponse;
+import com.example.cacophony.data.dto.ChatResponse;
 import com.example.cacophony.data.model.Chat;
+import com.example.cacophony.data.model.ChatWithMembers;
 import com.example.cacophony.mapper.ModelMapper;
+import com.example.cacophony.repository.ChatJooqRepository;
 import com.example.cacophony.service.ChatService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,13 +25,15 @@ public class ChatController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<CreateChatResponse> createChat(@Valid @RequestBody CreateChatRequest request) {
-        return ResponseEntity
-                .ok(modelMapper.chatToCreateResponse(this.chatService.createChat(modelMapper.requestToChat(request))));
+    public ResponseEntity<ChatResponse> createChat(@Valid @RequestBody CreateChatRequest request) {
+        return ResponseEntity.ok(modelMapper.chatToResponse(
+                this.chatService.createChat(modelMapper.requestToChat(request), request.getMembers()),
+                request.getMembers()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Chat> getChat(@PathVariable String id) {
-        return ResponseEntity.ok(this.chatService.getChat(id));
+    public ResponseEntity<ChatResponse> getChat(@PathVariable String id) {
+        ChatWithMembers result = this.chatService.getChatWithMembers(id);
+        return ResponseEntity.ok(modelMapper.chatToResponse(result.chat(), result.members()));
     }
 }

@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cacophony.data.dto.CreateChannelRequest;
-import com.example.cacophony.data.dto.CreateChannelResponse;
+import com.example.cacophony.data.dto.ChannelResponse;
 import com.example.cacophony.data.model.Channel;
+import com.example.cacophony.data.model.ChannelWithMembers;
+import com.example.cacophony.exception.NotFoundException;
 import com.example.cacophony.mapper.ModelMapper;
 import com.example.cacophony.service.ChannelService;
 import org.springframework.http.HttpStatus;
@@ -31,13 +33,16 @@ public class ChannelController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<CreateChannelResponse> createChannel(@Valid @RequestBody CreateChannelRequest request) {
-        return ResponseEntity.ok(modelMapper
-                .channelToCreateResponse(this.channelService.createChannel(modelMapper.requestToChannel(request))));
+    public ResponseEntity<ChannelResponse> createChannel(@Valid @RequestBody CreateChannelRequest request) {
+        return ResponseEntity.ok(modelMapper.channelToCreateResponse(
+                this.channelService.createChannel(modelMapper.requestToChannel(request), request.getMembers()),
+                request.getMembers()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Channel> getChannel(@PathVariable String id) {
-        return ResponseEntity.ok(this.channelService.getChannel(id));
+    public ResponseEntity<ChannelResponse> getChannel(@PathVariable String id) {
+        ChannelWithMembers channel = this.channelService.getChannelWithMembers(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Channel with ID %s not found", id)));
+        return ResponseEntity.ok(this.modelMapper.channelToCreateResponse(channel.channel(), channel.members()));
     }
 }

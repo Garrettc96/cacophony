@@ -1,13 +1,11 @@
 package com.example.cacophony.service;
 
 import com.example.cacophony.data.dto.ImageUploadDetails;
-import com.example.cacophony.data.model.Message;
-import com.example.cacophony.data.model.User;
 import com.example.cacophony.exception.NotFoundException;
-import com.example.cacophony.repository.MessageRepository;
+import com.example.cacophony.jooq.tables.records.MessageRecord;
+import com.example.cacophony.repository.MessageJooqRepository;
 
 import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.services.mediastoredata.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
@@ -26,12 +24,12 @@ import java.util.UUID;
 @Slf4j
 public class MessageServiceImpl implements MessageService {
 
-    MessageRepository messageRepository;
+    MessageJooqRepository messageRepository;
     ConversationService conversationService;
     S3Presigner presigner;
     String imageBucketName;
 
-    public MessageServiceImpl(MessageRepository messageRepository, ConversationService conversationService,
+    public MessageServiceImpl(MessageJooqRepository messageRepository, ConversationService conversationService,
             S3Presigner s3Presigner, String imageBucketName) {
         this.messageRepository = messageRepository;
         this.conversationService = conversationService;
@@ -41,25 +39,25 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Message createMessage(Message message) {
-        return messageRepository.save(message);
+    public MessageRecord createMessage(MessageRecord message) {
+        return this.messageRepository.createMessage(message);
     }
 
     @Override
-    public Message getMessage(String id) {
+    public MessageRecord getMessage(String id) {
         return messageRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new NotFoundException("Message not found"));
     }
 
     @Override
-    public List<Message> getMessagesInConversationBetweenTimes(UUID conversationId, OffsetDateTime startTime,
+    public List<MessageRecord> getMessagesInConversationBetweenTimes(UUID conversationId, OffsetDateTime startTime,
             OffsetDateTime endTime) {
         return this.messageRepository.findByConversationIdAndCreatedAtBetween(conversationId, startTime, endTime);
     }
 
     @Override
-    public List<Message> searchMessages(UUID conversationId, String searchString) {
-        return this.messageRepository.searchAndRankByFullText(conversationId, searchString);
+    public List<MessageRecord> searchMessages(UUID conversationId, String searchString) {
+        return this.messageRepository.searchMessages(conversationId, searchString);
     }
 
     @Override

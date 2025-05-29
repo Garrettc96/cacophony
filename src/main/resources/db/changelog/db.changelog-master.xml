@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Create update_updated_at_column function -->
+    <changeSet id="001-0-1" author="garrett">
+        <sql splitStatements="false">
+            CREATE OR REPLACE FUNCTION update_updated_at_column()
+            RETURNS TRIGGER AS $$
+            BEGIN
+                NEW.updated_at = CURRENT_TIMESTAMP;
+                RETURN NEW;
+            END;
+            $$ language 'plpgsql';
+        </sql>
+    </changeSet>
+
+    <!-- Create enum types -->
+    <changeSet id="001-1" author="garrett">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="conversation_type"/>
+            </not>
+        </preConditions>
+        <createTable tableName="conversation_type">
+            <column name="type" type="varchar(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <loadData tableName="conversation_type" file="data/conversation_type.csv" relativeToChangelogFile="true"/>
+    </changeSet>
+
+    <!-- Create channel visibility enum -->
+    <changeSet id="001-2" author="garrett">
+        <preConditions onFail="MARK_RAN">
+        <not>
+            <tableExists tableName="channel_visibility"/>
+        </not>
+    </preConditions>
+        <createTable tableName="channel_visibility">
+            <column name="visibility" type="varchar(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <loadData tableName="channel_visibility" file="data/channel_visibility.csv" relativeToChangelogFile="true"/>
+    </changeSet>
+
+        <!-- Create user_roles table -->
+    <changeSet id="001-3" author="garrett">
+        <preConditions onFail="MARK_RAN">
+        <not>
+            <tableExists tableName="user_role"/>
+        </not>
+    </preConditions>
+        <createTable tableName="user_role">
+            <column name="role" type="varchar(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <loadData tableName="user_role" file="data/user_role.csv" relativeToChangelogFile="true"/>
+    </changeSet>
+
+    <!-- Create users table -->
+    <changeSet id="001-4" author="garrett">
+        <preConditions onFail="MARK_RAN">
+        <not>
+            <tableExists tableName="c_user"/>
+        </not>
+    </preConditions>
+        <createTable tableName="c_user">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="varchar(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_role" type="varchar(50)">
+                <constraints nullable="false" foreignKeyName="fk_c_user_user_role" references="user_role(role)"/>
+            </column>
+        </createTable>
+        <sql>
+            CREATE TRIGGER update_c_user_updated_at
+                BEFORE UPDATE ON c_user
+                FOR EACH ROW
+                EXECUTE FUNCTION update_updated_at_column();
+        </sql>
+    </changeSet>
+
+    <!-- Create conversations table -->
+    <changeSet id="001-5" author="garrett">
+        <preConditions onFail="MARK_RAN">
+        <not>
+            <tableExists tableName="conversation"/>
+        </not>
+    </preConditions>
+        <createTable tableName="conversation">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="varchar(50)">
+                <constraints nullable="false" foreignKeyName="fk_conversation_type" references="conversation_type(type)"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql>
+            CREATE TRIGGER update_conversation_updated_at
+                BEFORE UPDATE ON conversation
+                FOR EACH ROW
+                EXECUTE FUNCTION update_updated_at_column();
+        </sql>
+    </changeSet>
+
+    <!-- Create chats table -->
+    <changeSet id="001-6" author="garrett">
+        <preConditions onFail="MARK_RAN">
+        <not>
+            <tableExists tableName="chat"/>
+        </not>
+    </preConditions>
+        <createTable tableName="chat">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false" foreignKeyName="fk_chat_conversation" references="conversation(id)"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="text"/>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql>
+            CREATE TRIGGER update_chat_updated_at
+                BEFORE UPDATE ON chat
+                FOR EACH ROW
+                EXECUTE FUNCTION update_updated_at_column();
+        </sql>
+    </changeSet>
+
+    <!-- Create channels table -->
+    <changeSet id="001-7" author="garrett">
+        <preConditions onFail="MARK_RAN">
+        <not>
+            <tableExists tableName="channel"/>
+        </not>
+    </preConditions>
+        <createTable tableName="channel">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false" foreignKeyName="fk_channel_conversation" references="conversation(id)"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="text"/>
+            <column name="visibility" type="varchar(50)">
+                <constraints nullable="false" foreignKeyName="fk_channel_visibility" references="channel_visibility(visibility)"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql>
+            CREATE TRIGGER update_channel_updated_at
+                BEFORE UPDATE ON channel
+                FOR EACH ROW
+                EXECUTE FUNCTION update_updated_at_column();
+        </sql>
+    </changeSet>
+
+    <!-- Create user_conversations join table -->
+    <changeSet id="001-8" author="garrett">
+        <preConditions onFail="MARK_RAN">
+        <not>
+            <tableExists tableName="user_conversation"/>
+        </not>
+    </preConditions>
+        <createTable tableName="user_conversation">
+            <column name="user_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_user_conversation_c_user" references="c_user(id)"/>
+            </column>
+            <column name="channel_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_user_conversation_conversation" references="conversation(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Create messages table -->
+    <changeSet id="001-9" author="garrett">
+        <preConditions onFail="MARK_RAN">
+        <not>
+            <tableExists tableName="message"/>
+        </not>
+    </preConditions>
+        <createTable tableName="message">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_message_c_user" references="c_user(id)"/>
+            </column>
+            <column name="conversation_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_message_conversation" references="conversation(id)"/>
+            </column>
+            <column name="text" type="text"/>
+            <column name="s3_path" type="varchar(255)"/>
+            <column name="fts_vector" type="tsvector"/>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql>
+            CREATE TRIGGER update_message_updated_at
+                BEFORE UPDATE ON message
+                FOR EACH ROW
+                EXECUTE FUNCTION update_updated_at_column();
+        </sql>
+    </changeSet>
+
+    <!-- Create reacts table -->
+    <changeSet id="001-10" author="garrett">
+        <preConditions onFail="MARK_RAN">
+        <not>
+            <tableExists tableName="react"/>
+        </not>
+    </preConditions>
+        <createTable tableName="react">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_react_c_user" references="c_user(id)"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="s3_path" type="varchar(255)"/>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql>
+            CREATE TRIGGER update_react_updated_at
+                BEFORE UPDATE ON react
+                FOR EACH ROW
+                EXECUTE FUNCTION update_updated_at_column();
+        </sql>
+    </changeSet>
+
+    <!-- Create indexes -->
+    <changeSet id="001-11" author="garrett">
+        <createIndex tableName="message" indexName="idx_message_conversation_id">
+            <column name="conversation_id"/>
+        </createIndex>
+        <createIndex tableName="message" indexName="idx_message_user_id">
+            <column name="user_id"/>
+        </createIndex>
+        <sql>CREATE INDEX idx_message_fts_vector ON message USING gin(fts_vector);</sql>
+        <createIndex tableName="react" indexName="idx_react_user_id">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex tableName="user_conversation" indexName="idx_user_conversation_user_id">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex tableName="user_conversation" indexName="idx_user_conversation_channel_id">
+            <column name="channel_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog> 

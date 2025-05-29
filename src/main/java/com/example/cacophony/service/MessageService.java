@@ -2,20 +2,21 @@ package com.example.cacophony.service;
 
 import com.example.cacophony.data.dto.ImageUploadDetails;
 import com.example.cacophony.data.model.Message;
+import com.example.cacophony.jooq.tables.records.MessageRecord;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
 public interface MessageService {
-    public Message createMessage(Message message);
+    public MessageRecord createMessage(MessageRecord message);
 
-    public Message getMessage(String id);
+    public MessageRecord getMessage(String id);
 
-    public List<Message> getMessagesInConversationBetweenTimes(UUID conversationId, OffsetDateTime startTime,
+    public List<MessageRecord> getMessagesInConversationBetweenTimes(UUID conversationId, OffsetDateTime startTime,
             OffsetDateTime endTime);
 
-    public List<Message> searchMessages(UUID conversationId, String searchString);
+    public List<MessageRecord> searchMessages(UUID conversationId, String searchString);
 
     public boolean canUserAccessMessage(UUID userId, String messageId);
 

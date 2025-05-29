@@ -1,17 +1,20 @@
 package com.example.cacophony.service;
 
 import com.example.cacophony.data.model.Chat;
+import com.example.cacophony.data.model.ChatWithMembers;
+import com.example.cacophony.jooq.tables.records.ChatRecord;
+import com.example.cacophony.repository.ChatJooqRepository;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
 public interface ChatService {
-    public Chat createChat(Chat chat);
+    public ChatRecord createChat(final ChatRecord chat, List<UUID> members);
 
-    public Chat getChat(String chatId);
+    public ChatRecord getChat(String chatId);
 
-    public List<Chat> getChatsByTimestamp(OffsetDateTime startEpoch, OffsetDateTime endEpoch);
+    public ChatWithMembers getChatWithMembers(String chatId);
 
     public boolean canUserAccessChat(UUID userId, String chatId);
 }
