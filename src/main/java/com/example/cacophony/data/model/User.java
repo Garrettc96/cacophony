@@ -57,10 +57,4 @@ public class User implements Serializable {
         return User.builder().id(user.id).conversations(user.conversations).roles(user.roles).username(user.username)
                 .password(password).email(user.email).createdAt(user.createdAt).updatedAt(user.updatedAt).build();
     }
-
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof User && ((User) o).getId().equals(this.id);
-
-    }
 }

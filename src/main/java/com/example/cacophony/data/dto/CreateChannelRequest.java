@@ -3,6 +3,8 @@ package com.example.cacophony.data.dto;
 import java.util.List;
 import java.util.UUID;
 
+import com.example.cacophony.jooq.tables.ChannelVisibility;
+
 import jakarta.validation.constraints.NotNull;
 
 import jakarta.validation.constraints.Size;
@@ -21,4 +23,6 @@ public class CreateChannelRequest {
     @NotNull(message = "Description can't be null")
     String description;
     List<UUID> members;
+    @NotNull
+    ChannelVisibilityEnum visibility;
 }

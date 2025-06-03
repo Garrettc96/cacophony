@@ -6,6 +6,7 @@ import com.example.cacophony.data.dto.CreateUserResponse;
 import com.example.cacophony.data.dto.GenerateTokenResponse;
 import com.example.cacophony.data.model.AuthRequest;
 import com.example.cacophony.data.model.User;
+import com.example.cacophony.jooq.tables.records.CUserRecord;
 import com.example.cacophony.mapper.ModelMapper;
 import com.example.cacophony.service.JwtService;
 import com.example.cacophony.service.UserService;
@@ -45,19 +46,14 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(
+    public ResponseEntity<CUserRecord> getUserById(
             @Parameter(description = "UUID of user being requested") @Valid @PathVariable UUID id) {
         return ResponseEntity.ok(this.userService.getUserFromId(id));
     }
 
     @GetMapping()
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<CUserRecord>> getAllUsers() {
         return ResponseEntity.ok(this.userService.listUsers());
-    }
-
-    @PostMapping("/addNewUser")
-    public ResponseEntity<CreateUserResponse> addNewUser(@RequestBody User user) {
-        return ResponseEntity.ok(CreateUserResponse.fromUser(this.userService.createUser(user)));
     }
 
     @GetMapping("/userProfile")

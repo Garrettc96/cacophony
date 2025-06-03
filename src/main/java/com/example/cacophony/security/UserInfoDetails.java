@@ -1,7 +1,7 @@
 package com.example.cacophony.security;
 
-import com.example.cacophony.data.UserRole;
-import com.example.cacophony.data.model.User;
+import com.example.cacophony.jooq.tables.records.CUserRecord;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,12 +16,11 @@ public class UserInfoDetails implements UserDetails {
     public UUID userId;
     public List<SimpleGrantedAuthority> authorities;
 
-    public UserInfoDetails(User user) {
+    public UserInfoDetails(CUserRecord user) {
         this.userName = user.getUsername();
         this.password = user.getPassword();
         this.userId = user.getId();
-        this.authorities = user.getRoles().stream().map((UserRole role) -> new SimpleGrantedAuthority(role.toString()))
-                .toList();
+        this.authorities = List.of(new SimpleGrantedAuthority(user.getUserRole()));
     }
 
     @Override

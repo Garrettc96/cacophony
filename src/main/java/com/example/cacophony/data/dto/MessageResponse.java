@@ -14,6 +14,7 @@ public class MessageResponse {
     UUID userId;
     UUID conversationId;
     String message;
+    String s3Path;
     OffsetDateTime createdAt;
     OffsetDateTime updatedAt;
 

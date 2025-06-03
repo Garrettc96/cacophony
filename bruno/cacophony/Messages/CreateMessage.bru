@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: http://localhost:3307/cacophony/messages
+  url: http://localhost:{{PORT}}/cacophony/messages
   body: json
   auth: inherit
 }
@@ -16,7 +16,8 @@ headers {
 
 body:json {
   {
-    "conversationId": "727b6f76-70d3-4b5b-bde2-5f53e7bdfd50",
-    "message": "string"
+    "conversationId": "f548accf-7fe7-489f-8adc-a5944417b6c7",
+    "message": "this contains nope and nope",
+    "s3Path": "cacophony-us-east-13://s/0db75b8a-80db-43b2-8e66-5aa4623fbe1c/FRC7A6ADHL5D57E4AY_0"
   }
 }

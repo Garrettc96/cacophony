@@ -4,6 +4,8 @@ import com.example.cacophony.data.UserRole;
 import com.example.cacophony.data.model.User;
 import com.example.cacophony.exception.DuplicateEntityException;
 import com.example.cacophony.exception.NotFoundException;
+import com.example.cacophony.jooq.tables.records.CUserRecord;
+import com.example.cacophony.repository.UserJooqRepository;
 import com.example.cacophony.repository.UserRepository;
 import com.example.cacophony.security.UserInfoDetails;
 
@@ -22,30 +24,29 @@ import java.util.UUID;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+    private final UserJooqRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserJooqRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public User getUserFromId(UUID id) {
-        return this.userRepository.findById(id).orElse(null);
+    public CUserRecord getUserFromId(UUID id) {
+        return this.userRepository.findUserById(id).orElse(null);
     }
 
     @Override
-    public User getUserFromName(String userName) {
-        return this.userRepository.findByUsername(userName)
+    public CUserRecord getUserFromName(String userName) {
+        return this.userRepository.findUserByName(userName)
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("Username %s not found", userName)));
     }
 
     @Override
-    public User createUser(User user) {
+    public CUserRecord createUser(CUserRecord user) {
         try {
-            return this.userRepository.save(User.withPassword(User.withRoles(user, List.of(UserRole.USER_ROLE)),
-                    this.passwordEncoder.encode(user.getPassword())));
+            return this.userRepository.createUser(user);
         } catch (DataIntegrityViolationException ex) {
             // Unique constraint is violated
             throw new DuplicateEntityException("User already exists", ex, User.class);
@@ -53,13 +54,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDetails getUserDetailsFromUser(User user) {
+    public UserDetails getUserDetailsFromUser(CUserRecord user) {
         return new UserInfoDetails(user);
     }
 
     @Override
-    public List<User> listUsers() {
-        return this.userRepository.findAll();
+    public List<CUserRecord> listUsers() {
+        return this.userRepository.listUsers();
     }
 
     @Override
@@ -68,8 +69,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> validateUsers(List<User> users) {
-        return users.stream().map((User user) -> this.getUserFromId(user.getId())).map((User user) -> {
+    public List<CUserRecord> validateUsers(List<UUID> userIdList) {
+        return userIdList.stream().map((UUID userId) -> this.getUserFromId(userId)).map((CUserRecord user) -> {
             if (user == null) {
                 log.error("User {} not found", user);
                 throw new NotFoundException("User not found");

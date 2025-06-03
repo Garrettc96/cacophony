@@ -20,10 +20,17 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.net.URI;
+import java.net.URL;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -35,12 +42,19 @@ import org.hamcrest.CoreMatchers;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import software.amazon.awssdk.http.SdkHttpMethod;
+import software.amazon.awssdk.http.SdkHttpRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+
 import org.testcontainers.junit.jupiter.Container;
 
 import com.example.cacophony.data.dto.CreateChannelRequest;
-import com.example.cacophony.data.dto.CreateChannelResponse;
+import com.example.cacophony.data.dto.ChannelResponse;
+import com.example.cacophony.data.dto.ChannelVisibilityEnum;
 import com.example.cacophony.data.dto.CreateChatRequest;
-import com.example.cacophony.data.dto.CreateChatResponse;
+import com.example.cacophony.data.dto.ChatResponse;
 import com.example.cacophony.data.dto.CreateMessageRequest;
 import com.example.cacophony.data.dto.CreateUserRequest;
 import com.example.cacophony.data.dto.GenerateTokenResponse;
@@ -53,11 +67,15 @@ import static com.example.cacophony.TestConstants.TEST_EMAIL;
 import static com.example.cacophony.TestConstants.TEST_PASSWORD;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
 @TestPropertySource("classpath:application-test.properties")
+@ActiveProfiles("test")
+@Import(TestBeanSetup.class)
 class CacophonyApplicationTests {
 
     @Container
@@ -85,6 +103,9 @@ class CacophonyApplicationTests {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private S3Presigner s3PresignerMock;
+
     @BeforeEach
     public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(springSecurity())
@@ -94,15 +115,22 @@ class CacophonyApplicationTests {
     }
 
     void cleanupDatabase() {
-        List<String> tableNames = jdbcTemplate
-                .queryForList("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public';", String.class);
+        // First ensure the schema exists
+        jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS cacophony");
 
+        // Get tables from the cacophony schema instead of public
+        List<String> tableNames = jdbcTemplate.queryForList(
+                "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'cacophony';", String.class);
+        List<String> staticTables = List.of("user_role", "conversation_type", "channel_visibility");
         // Truncate all tables
         tableNames.forEach(tableName -> {
             try {
-                jdbcTemplate.execute("TRUNCATE TABLE " + tableName + " CASCADE");
+                if (!staticTables.contains(tableName)) {
+                    jdbcTemplate.execute("TRUNCATE TABLE cacophony." + tableName + " CASCADE");
+                }
+
             } catch (Exception ex) {
-                System.out.println(ex);
+                System.out.println("Error truncating table " + tableName + ": " + ex.getMessage());
             }
         });
     }
@@ -120,7 +148,7 @@ class CacophonyApplicationTests {
         request.setEmail("testuser@example.com");
 
         // Perform the API call to create a new user
-        mockMvc.perform(post("/cacophony/users/addNewUser").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/cacophony/users").contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(request))).andExpect(status().isOk())
                 .andExpect(jsonPath("$.userName").value("testuser"))
                 .andExpect(jsonPath("$.email").value("testuser@example.com"));
@@ -135,7 +163,7 @@ class CacophonyApplicationTests {
         createRequest.setEmail("authuser@example.com");
 
         // Create the user first
-        mockMvc.perform(post("/cacophony/users/addNewUser").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/cacophony/users").contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createRequest))).andExpect(status().isOk());
 
         // Create auth request
@@ -178,7 +206,7 @@ class CacophonyApplicationTests {
         request.setName("test channel name");
         request.setDescription("random test description");
         request.setMembers(List.of(userService.getUserFromName(TEST_USER).getId()));
-
+        request.setVisibility(ChannelVisibilityEnum.PUBLIC);
         // Test channel creation
         mockMvc.perform(post("/cacophony/channels").header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -205,9 +233,8 @@ class CacophonyApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(chatRequest)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
-        CreateChatResponse createChannel = objectMapper.readValue(chatResponse,
-                new TypeReference<CreateChatResponse>() {
-                });
+        ChatResponse createChannel = objectMapper.readValue(chatResponse, new TypeReference<ChatResponse>() {
+        });
 
         sendMessage(createChannel.getId().toString(), token);
         sendMessage(createChannel.getId().toString(), token);
@@ -234,7 +261,7 @@ class CacophonyApplicationTests {
         channelRequest.setName("Test channel");
         channelRequest.setDescription("A test chat room");
         channelRequest.setMembers(List.of(userService.getUserFromName(TEST_USER).getId()));
-
+        channelRequest.setVisibility(ChannelVisibilityEnum.PUBLIC);
         // Create the chat and get its ID
         String channelResponse = mockMvc
                 .perform(post("/cacophony/channels").header("Authorization", "Bearer " + token)
@@ -242,9 +269,8 @@ class CacophonyApplicationTests {
                         .content(objectMapper.writeValueAsString(channelRequest)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
-        CreateChannelResponse createChannel = objectMapper.readValue(channelResponse,
-                new TypeReference<CreateChannelResponse>() {
-                });
+        ChannelResponse createChannel = objectMapper.readValue(channelResponse, new TypeReference<ChannelResponse>() {
+        });
 
         sendMessage(createChannel.getId().toString(), token);
         sendMessage(createChannel.getId().toString(), token);
@@ -300,6 +326,41 @@ class CacophonyApplicationTests {
         assertTrue(messages.size() == 1);
     }
 
+    @Test
+    void testMessageImageUpload() throws Exception {
+        String token = generateToken();
+
+        PresignedPutObjectRequest response = mock(PresignedPutObjectRequest.class);
+        URL urlMock = mock(URL.class);
+        when(urlMock.toString()).thenReturn("localhost");
+        when(urlMock.toExternalForm()).thenReturn("localhost");
+        when(response.url()).thenReturn(urlMock);
+        SdkHttpRequest mockSdkHttpRequest = mock(SdkHttpRequest.class);
+        when(mockSdkHttpRequest.method()).thenReturn(SdkHttpMethod.GET);
+        when(response.httpRequest()).thenReturn(mockSdkHttpRequest);
+        when(s3PresignerMock.presignPutObject(any(PutObjectPresignRequest.class))).thenReturn(response);
+        // First create a chat to upload image to
+        CreateChatRequest chatRequest = new CreateChatRequest();
+        chatRequest.setName("Test Chat");
+        chatRequest.setDescription("A test chat room");
+        chatRequest.setMembers(List.of(userService.getUserFromName(TEST_USER).getId()));
+
+        // Create the chat and get its ID
+        String chatResponse = mockMvc
+                .perform(post("/cacophony/chats").header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(chatRequest)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        ChatResponse createChat = objectMapper.readValue(chatResponse, new TypeReference<ChatResponse>() {
+        });
+
+        // Test image upload URL generation
+        mockMvc.perform(get("/cacophony/messages/" + createChat.getId() + "/uploadImage").header("Authorization",
+                "Bearer " + token)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.conversationId").value(createChat.getId().toString()))
+                .andExpect(jsonPath("$.s3Path").exists()).andExpect(jsonPath("$.url").exists());
+    }
+
     private String generateToken() throws Exception {
         // First create a user that we can authenticate
         CreateUserRequest createRequest = new CreateUserRequest();
@@ -308,7 +369,7 @@ class CacophonyApplicationTests {
         createRequest.setEmail(TEST_EMAIL);
 
         // Create the user first
-        mockMvc.perform(post("/cacophony/users/addNewUser").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/cacophony/users").contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createRequest))).andExpect(status().isOk());
 
         // Create auth request - Use the same credentials as the created user
