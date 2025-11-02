@@ -297,4 +297,36 @@
             <column name="channel_id"/>
         </createIndex>
     </changeSet>
+
+    <!-- Create message_react table -->
+    <changeSet id="001-12" author="garrett">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="message_react"/>
+            </not>
+        </preConditions>
+        <createTable tableName="message_react">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="message_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_message_react_message" references="message(id)"/>
+            </column>
+            <column name="react_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_message_react_react" references="react(id)"/>
+            </column>
+            <column name="user_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_message_react_c_user" references="c_user(id)"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql>
+            CREATE TRIGGER update_message_react_updated_at
+                BEFORE UPDATE ON message_react
+                FOR EACH ROW
+                EXECUTE FUNCTION update_updated_at_column();
+        </sql>
+    </changeSet>
 </databaseChangeLog> 

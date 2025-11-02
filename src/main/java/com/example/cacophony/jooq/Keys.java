@@ -11,6 +11,7 @@ import com.example.cacophony.jooq.tables.Conversation;
 import com.example.cacophony.jooq.tables.ConversationType;
 import com.example.cacophony.jooq.tables.Databasechangeloglock;
 import com.example.cacophony.jooq.tables.Message;
+import com.example.cacophony.jooq.tables.MessageReact;
 import com.example.cacophony.jooq.tables.React;
 import com.example.cacophony.jooq.tables.UserConversation;
 import com.example.cacophony.jooq.tables.UserRole;
@@ -21,6 +22,7 @@ import com.example.cacophony.jooq.tables.records.ChatRecord;
 import com.example.cacophony.jooq.tables.records.ConversationRecord;
 import com.example.cacophony.jooq.tables.records.ConversationTypeRecord;
 import com.example.cacophony.jooq.tables.records.DatabasechangeloglockRecord;
+import com.example.cacophony.jooq.tables.records.MessageReactRecord;
 import com.example.cacophony.jooq.tables.records.MessageRecord;
 import com.example.cacophony.jooq.tables.records.ReactRecord;
 import com.example.cacophony.jooq.tables.records.UserConversationRecord;
@@ -106,6 +108,18 @@ public class Keys {
                     new TableField[] { Message.MESSAGE.CONVERSATION_ID }, Keys.CONVERSATION_PKEY,
                     new TableField[] { Conversation.CONVERSATION.ID }, true, ForeignKeyRule.NO_ACTION,
                     ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<MessageReactRecord, MessageRecord> MESSAGE_REACT__MESSAGE_REACT_MESSAGE_ID_FKEY = Internal
+            .createForeignKey(MessageReact.MESSAGE_REACT, DSL.name("message_react_message_id_fkey"),
+                    new TableField[] { MessageReact.MESSAGE_REACT.MESSAGE_ID }, Keys.MESSAGE_PKEY,
+                    new TableField[] { Message.MESSAGE.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<MessageReactRecord, ReactRecord> MESSAGE_REACT__MESSAGE_REACT_REACT_ID_FKEY = Internal
+            .createForeignKey(MessageReact.MESSAGE_REACT, DSL.name("message_react_react_id_fkey"),
+                    new TableField[] { MessageReact.MESSAGE_REACT.REACT_ID }, Keys.REACT_PKEY,
+                    new TableField[] { React.REACT.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<MessageReactRecord, CUserRecord> MESSAGE_REACT__MESSAGE_REACT_USER_ID_FKEY = Internal
+            .createForeignKey(MessageReact.MESSAGE_REACT, DSL.name("message_react_user_id_fkey"),
+                    new TableField[] { MessageReact.MESSAGE_REACT.USER_ID }, Keys.C_USER_PKEY,
+                    new TableField[] { CUser.C_USER.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
     public static final ForeignKey<ReactRecord, CUserRecord> REACT__FK_REACT_C_USER = Internal.createForeignKey(
             React.REACT, DSL.name("fk_react_c_user"), new TableField[] { React.REACT.USER_ID }, Keys.C_USER_PKEY,
             new TableField[] { CUser.C_USER.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);

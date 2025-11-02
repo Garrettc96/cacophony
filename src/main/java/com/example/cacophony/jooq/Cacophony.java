@@ -12,6 +12,7 @@ import com.example.cacophony.jooq.tables.ConversationType;
 import com.example.cacophony.jooq.tables.Databasechangelog;
 import com.example.cacophony.jooq.tables.Databasechangeloglock;
 import com.example.cacophony.jooq.tables.Message;
+import com.example.cacophony.jooq.tables.MessageReact;
 import com.example.cacophony.jooq.tables.React;
 import com.example.cacophony.jooq.tables.UserConversation;
 import com.example.cacophony.jooq.tables.UserRole;
@@ -83,6 +84,11 @@ public class Cacophony extends SchemaImpl {
     public final Message MESSAGE = Message.MESSAGE;
 
     /**
+     * The table <code>cacophony.message_react</code>.
+     */
+    public final MessageReact MESSAGE_REACT = MessageReact.MESSAGE_REACT;
+
+    /**
      * The table <code>cacophony.react</code>.
      */
     public final React REACT = React.REACT;
@@ -113,7 +119,7 @@ public class Cacophony extends SchemaImpl {
     public final List<Table<?>> getTables() {
         return Arrays.asList(CUser.C_USER, Channel.CHANNEL, ChannelVisibility.CHANNEL_VISIBILITY, Chat.CHAT,
                 Conversation.CONVERSATION, ConversationType.CONVERSATION_TYPE, Databasechangelog.DATABASECHANGELOG,
-                Databasechangeloglock.DATABASECHANGELOGLOCK, Message.MESSAGE, React.REACT,
+                Databasechangeloglock.DATABASECHANGELOGLOCK, Message.MESSAGE, MessageReact.MESSAGE_REACT, React.REACT,
                 UserConversation.USER_CONVERSATION, UserRole.USER_ROLE);
     }
 }

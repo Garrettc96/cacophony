@@ -23,8 +23,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.net.URI;
@@ -56,17 +55,18 @@ import com.example.cacophony.data.dto.ChannelVisibilityEnum;
 import com.example.cacophony.data.dto.CreateChatRequest;
 import com.example.cacophony.data.dto.ChatResponse;
 import com.example.cacophony.data.dto.CreateMessageRequest;
+import com.example.cacophony.data.dto.CreateMessageReactRequest;
+import com.example.cacophony.data.dto.CreateReactRequest;
 import com.example.cacophony.data.dto.CreateUserRequest;
 import com.example.cacophony.data.dto.GenerateTokenResponse;
 import com.example.cacophony.data.dto.MessageResponse;
+import com.example.cacophony.data.dto.ReactResponse;
 import com.example.cacophony.data.model.AuthRequest;
 import com.example.cacophony.service.UserService;
-import com.example.cacophony.TestConstants;
 import static com.example.cacophony.TestConstants.TEST_USER;
 import static com.example.cacophony.TestConstants.TEST_EMAIL;
 import static com.example.cacophony.TestConstants.TEST_PASSWORD;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import org.springframework.security.web.FilterChainProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -361,6 +361,54 @@ class CacophonyApplicationTests {
                 .andExpect(jsonPath("$.s3Path").exists()).andExpect(jsonPath("$.url").exists());
     }
 
+    @Test
+    void testMessageReactions() throws Exception {
+        String token = generateToken();
+
+        // First create a chat to send message to
+        CreateChatRequest chatRequest = new CreateChatRequest();
+        chatRequest.setName("Test Chat");
+        chatRequest.setDescription("A test chat room");
+        chatRequest.setMembers(List.of(userService.getUserFromName(TEST_USER).getId()));
+
+        // Create the chat and get its ID
+        String chatResponse = mockMvc
+                .perform(post("/cacophony/chats").header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(chatRequest)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        ChatResponse createChat = objectMapper.readValue(chatResponse, new TypeReference<ChatResponse>() {
+        });
+
+        // Send a message to react to
+        MessageResponse message = sendMessage(createChat.getId().toString(), token);
+
+        // Create a react
+        CreateReactRequest reactRequest = new CreateReactRequest();
+        reactRequest.setName("👍");
+        reactRequest.setS3Path("test/path");
+
+        String reactResponse = mockMvc
+                .perform(post("/cacophony/reacts").header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(reactRequest)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        ReactResponse react = objectMapper.readValue(reactResponse, new TypeReference<ReactResponse>() {
+        });
+
+        // Test adding a reaction
+        CreateMessageReactRequest reactToMessageRequest = new CreateMessageReactRequest();
+        reactToMessageRequest.setReactId(react.getId());
+
+        mockMvc.perform(post("/cacophony/messages/" + message.getId() + "/react")
+                .header("Authorization", "Bearer " + token).contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reactToMessageRequest))).andExpect(status().isOk());
+
+        // Test removing a reaction
+        mockMvc.perform(delete("/cacophony/messages/" + message.getId() + "/react/" + react.getId())
+                .header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+    }
+
     private String generateToken() throws Exception {
         // First create a user that we can authenticate
         CreateUserRequest createRequest = new CreateUserRequest();
@@ -398,14 +446,18 @@ class CacophonyApplicationTests {
         return saltStr;
     }
 
-    private void sendMessage(String conversationId, String token) throws Exception {
+    private MessageResponse sendMessage(String conversationId, String token) throws Exception {
         CreateMessageRequest createMessageRequest = CreateMessageRequest.builder()
                 .conversationId(UUID.fromString(conversationId)).message(getRandomString()).build();
 
         // Test sending a message
-        mockMvc.perform(post("/cacophony/messages").header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(createMessageRequest)))
+        String response = mockMvc
+                .perform(post("/cacophony/messages").header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createMessageRequest)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        return objectMapper.readValue(response, MessageResponse.class);
     }
 
 }

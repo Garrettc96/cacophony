@@ -7,6 +7,7 @@ import com.example.cacophony.jooq.Cacophony;
 import com.example.cacophony.jooq.Indexes;
 import com.example.cacophony.jooq.Keys;
 import com.example.cacophony.jooq.tables.CUser.CUserPath;
+import com.example.cacophony.jooq.tables.MessageReact.MessageReactPath;
 import com.example.cacophony.jooq.tables.records.ReactRecord;
 
 import java.time.OffsetDateTime;
@@ -195,6 +196,19 @@ public class React extends TableImpl<ReactRecord> {
             _cUser = new CUserPath(this, Keys.REACT__FK_REACT_C_USER, null);
 
         return _cUser;
+    }
+
+    private transient MessageReactPath _messageReact;
+
+    /**
+     * Get the implicit to-many join path to the <code>cacophony.message_react</code> table
+     */
+    public MessageReactPath messageReact() {
+        if (_messageReact == null)
+            _messageReact = new MessageReactPath(this, null,
+                    Keys.MESSAGE_REACT__MESSAGE_REACT_REACT_ID_FKEY.getInverseKey());
+
+        return _messageReact;
     }
 
     @Override

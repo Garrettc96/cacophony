@@ -8,6 +8,7 @@ import com.example.cacophony.jooq.Indexes;
 import com.example.cacophony.jooq.Keys;
 import com.example.cacophony.jooq.tables.CUser.CUserPath;
 import com.example.cacophony.jooq.tables.Conversation.ConversationPath;
+import com.example.cacophony.jooq.tables.MessageReact.MessageReactPath;
 import com.example.cacophony.jooq.tables.records.MessageRecord;
 
 import java.time.OffsetDateTime;
@@ -225,6 +226,19 @@ public class Message extends TableImpl<MessageRecord> {
             _conversation = new ConversationPath(this, Keys.MESSAGE__FK_MESSAGE_CONVERSATION, null);
 
         return _conversation;
+    }
+
+    private transient MessageReactPath _messageReact;
+
+    /**
+     * Get the implicit to-many join path to the <code>cacophony.message_react</code> table
+     */
+    public MessageReactPath messageReact() {
+        if (_messageReact == null)
+            _messageReact = new MessageReactPath(this, null,
+                    Keys.MESSAGE_REACT__MESSAGE_REACT_MESSAGE_ID_FKEY.getInverseKey());
+
+        return _messageReact;
     }
 
     @Override
