@@ -3,6 +3,7 @@
  */
 package com.example.cacophony.jooq;
 
+
 import com.example.cacophony.jooq.tables.CUser;
 import com.example.cacophony.jooq.tables.Channel;
 import com.example.cacophony.jooq.tables.ChannelVisibility;
@@ -12,9 +13,11 @@ import com.example.cacophony.jooq.tables.ConversationType;
 import com.example.cacophony.jooq.tables.Databasechangelog;
 import com.example.cacophony.jooq.tables.Databasechangeloglock;
 import com.example.cacophony.jooq.tables.Message;
+import com.example.cacophony.jooq.tables.MessageReact;
 import com.example.cacophony.jooq.tables.React;
 import com.example.cacophony.jooq.tables.UserConversation;
 import com.example.cacophony.jooq.tables.UserRole;
+
 
 /**
  * Convenience access to all tables in cacophony.
@@ -66,6 +69,11 @@ public class Tables {
      * The table <code>cacophony.message</code>.
      */
     public static final Message MESSAGE = Message.MESSAGE;
+
+    /**
+     * The table <code>cacophony.message_react</code>.
+     */
+    public static final MessageReact MESSAGE_REACT = MessageReact.MESSAGE_REACT;
 
     /**
      * The table <code>cacophony.react</code>.

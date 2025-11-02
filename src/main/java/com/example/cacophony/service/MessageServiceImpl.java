@@ -4,6 +4,7 @@ import com.example.cacophony.data.dto.ImageUploadDetails;
 import com.example.cacophony.exception.NotFoundException;
 import com.example.cacophony.jooq.tables.records.MessageRecord;
 import com.example.cacophony.repository.MessageJooqRepository;
+import com.example.cacophony.util.Identity;
 
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -20,6 +21,9 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Slf4j
 public class MessageServiceImpl implements MessageService {
@@ -94,5 +98,17 @@ public class MessageServiceImpl implements MessageService {
         String saltStr = salt.toString();
         long epoch = Instant.EPOCH.toEpochMilli();
         return String.format("%s_%d", saltStr, epoch);
+    }
+
+    @Override
+    public void addReactionToMessage(UUID messageId, UUID reactId) {
+        UUID userId = UUID.fromString(Identity.getUserId());
+        messageRepository.addReactionToMessage(messageId, reactId, userId);
+    }
+
+    @Override
+    public void removeReactionFromMessage(UUID messageId, UUID reactId) {
+        UUID userId = UUID.fromString(Identity.getUserId());
+        messageRepository.removeReactionFromMessage(messageId, reactId, userId);
     }
 }

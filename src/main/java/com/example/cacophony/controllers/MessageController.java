@@ -1,6 +1,7 @@
 package com.example.cacophony.controllers;
 
 import com.example.cacophony.data.dto.CreateMessageRequest;
+import com.example.cacophony.data.dto.CreateMessageReactRequest;
 import com.example.cacophony.data.dto.ImageUploadResponse;
 import com.example.cacophony.data.dto.MessageResponse;
 import com.example.cacophony.data.dto.ImageUploadDetails;
@@ -33,6 +34,22 @@ public class MessageController {
     public ResponseEntity<MessageResponse> createMessage(@RequestBody CreateMessageRequest request) {
         return ResponseEntity.ok(modelMapper.messageToResponse(
                 this.messageService.createMessage(modelMapper.createMessageRequestToMessage(request))));
+    }
+
+    @PostMapping("/{messageId}/react")
+    public ResponseEntity<Void> reactToMessage(
+            @PathVariable UUID messageId,
+            @RequestBody CreateMessageReactRequest request) {
+        this.messageService.addReactionToMessage(messageId, request.getReactId());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{messageId}/react/{reactId}")
+    public ResponseEntity<Void> removeReactionFromMessage(
+            @PathVariable UUID messageId,
+            @PathVariable UUID reactId) {
+        this.messageService.removeReactionFromMessage(messageId, reactId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{conversationId}/uploadImage")

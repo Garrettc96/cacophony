@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cacophony
+  namespace: monitoring
+  labels:
+    app: cacophony
+    release: my-kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: cacophony
+  endpoints:
+  - port: http
+    path: /cacophony/actuator/prometheus
+    interval: 30s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - default
+
+

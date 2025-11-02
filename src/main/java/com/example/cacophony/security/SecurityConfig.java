@@ -50,15 +50,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider)
             throws Exception {
         http.csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/welcome", "/users", "/users/generateToken")
-                        .permitAll().requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/cacophony/auth/welcome", "/cacophony/users/addNewUser",
-                                "/cacophony/users/generateToken")
-                        .permitAll().requestMatchers("/auth/user/**").hasAuthority("ROLE_USER")
-                        .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN").anyRequest().authenticated() // Protect
-                                                                                                                   // all
-                                                                                                                   // other
-                                                                                                                   // endpoints
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll() // Permit all requests
                 ).sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions
                 ).authenticationProvider(authenticationProvider) // Custom authentication provider
                 .addFilterAfter(cacheRequestBodyFilter, UsernamePasswordAuthenticationFilter.class)

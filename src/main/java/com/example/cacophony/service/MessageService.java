@@ -21,4 +21,8 @@ public interface MessageService {
     public boolean canUserAccessMessage(UUID userId, String messageId);
 
     public ImageUploadDetails generateImageUploadUrl(String conversationId);
+
+    void addReactionToMessage(UUID messageId, UUID reactId);
+
+    void removeReactionFromMessage(UUID messageId, UUID reactId);
 }
