@@ -10,9 +10,8 @@ import org.springframework.security.access.PermissionEvaluator;
 
 public class CustomPermissionEvaluator implements PermissionEvaluator {
     @Override
-    public boolean hasPermission(
-      Authentication auth, Object targetDomainObject, Object permission) {
-        if ((auth == null) || (targetDomainObject == null) || !(permission instanceof String)){
+    public boolean hasPermission(Authentication auth, Object targetDomainObject, Object permission) {
+        if ((auth == null) || (targetDomainObject == null) || !(permission instanceof String)) {
             return false;
         }
         String targetType = targetDomainObject.getClass().getSimpleName().toUpperCase();
@@ -21,22 +20,19 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
     }
 
     @Override
-    public boolean hasPermission(
-      Authentication auth, Serializable targetId, String targetType, Object permission) {
+    public boolean hasPermission(Authentication auth, Serializable targetId, String targetType, Object permission) {
         if ((auth == null) || (targetType == null) || !(permission instanceof String)) {
             return false;
         }
-        return hasPrivilege(auth, targetType.toUpperCase(), 
-          permission.toString().toUpperCase());
+        return hasPrivilege(auth, targetType.toUpperCase(), permission.toString().toUpperCase());
     }
 
     private boolean hasPrivilege(Authentication auth, String targetType, String permission) {
-      for (GrantedAuthority grantedAuth : auth.getAuthorities()) {
-          if (grantedAuth.getAuthority().startsWith(targetType) && 
-            grantedAuth.getAuthority().contains(permission)) {
-              return true;
-          }
-      }
-      return false;
-  }
+        for (GrantedAuthority grantedAuth : auth.getAuthorities()) {
+            if (grantedAuth.getAuthority().startsWith(targetType) && grantedAuth.getAuthority().contains(permission)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

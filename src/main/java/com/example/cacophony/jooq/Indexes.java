@@ -3,7 +3,6 @@
  */
 package com.example.cacophony.jooq;
 
-
 import com.example.cacophony.jooq.tables.Message;
 import com.example.cacophony.jooq.tables.React;
 import com.example.cacophony.jooq.tables.UserConversation;
@@ -12,7 +11,6 @@ import org.jooq.Index;
 import org.jooq.OrderField;
 import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
-
 
 /**
  * A class modelling indexes of tables in cacophony.
@@ -24,10 +22,19 @@ public class Indexes {
     // INDEX definitions
     // -------------------------------------------------------------------------
 
-    public static final Index IDX_MESSAGE_CONVERSATION_ID = Internal.createIndex(DSL.name("idx_message_conversation_id"), Message.MESSAGE, new OrderField[] { Message.MESSAGE.CONVERSATION_ID }, false);
-    public static final Index IDX_MESSAGE_FTS_VECTOR = Internal.createIndex(DSL.name("idx_message_fts_vector"), Message.MESSAGE, new OrderField[] { Message.MESSAGE.FTS_VECTOR }, false);
-    public static final Index IDX_MESSAGE_USER_ID = Internal.createIndex(DSL.name("idx_message_user_id"), Message.MESSAGE, new OrderField[] { Message.MESSAGE.USER_ID }, false);
-    public static final Index IDX_REACT_USER_ID = Internal.createIndex(DSL.name("idx_react_user_id"), React.REACT, new OrderField[] { React.REACT.USER_ID }, false);
-    public static final Index IDX_USER_CONVERSATION_CHANNEL_ID = Internal.createIndex(DSL.name("idx_user_conversation_channel_id"), UserConversation.USER_CONVERSATION, new OrderField[] { UserConversation.USER_CONVERSATION.CHANNEL_ID }, false);
-    public static final Index IDX_USER_CONVERSATION_USER_ID = Internal.createIndex(DSL.name("idx_user_conversation_user_id"), UserConversation.USER_CONVERSATION, new OrderField[] { UserConversation.USER_CONVERSATION.USER_ID }, false);
+    public static final Index IDX_MESSAGE_CONVERSATION_ID = Internal.createIndex(
+            DSL.name("idx_message_conversation_id"), Message.MESSAGE,
+            new OrderField[] { Message.MESSAGE.CONVERSATION_ID }, false);
+    public static final Index IDX_MESSAGE_FTS_VECTOR = Internal.createIndex(DSL.name("idx_message_fts_vector"),
+            Message.MESSAGE, new OrderField[] { Message.MESSAGE.FTS_VECTOR }, false);
+    public static final Index IDX_MESSAGE_USER_ID = Internal.createIndex(DSL.name("idx_message_user_id"),
+            Message.MESSAGE, new OrderField[] { Message.MESSAGE.USER_ID }, false);
+    public static final Index IDX_REACT_USER_ID = Internal.createIndex(DSL.name("idx_react_user_id"), React.REACT,
+            new OrderField[] { React.REACT.USER_ID }, false);
+    public static final Index IDX_USER_CONVERSATION_CHANNEL_ID = Internal.createIndex(
+            DSL.name("idx_user_conversation_channel_id"), UserConversation.USER_CONVERSATION,
+            new OrderField[] { UserConversation.USER_CONVERSATION.CHANNEL_ID }, false);
+    public static final Index IDX_USER_CONVERSATION_USER_ID = Internal.createIndex(
+            DSL.name("idx_user_conversation_user_id"), UserConversation.USER_CONVERSATION,
+            new OrderField[] { UserConversation.USER_CONVERSATION.USER_ID }, false);
 }

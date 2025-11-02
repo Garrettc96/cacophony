@@ -50,8 +50,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider)
             throws Exception {
         http.csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // Permit all requests
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll() // Permit all requests
                 ).sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions
                 ).authenticationProvider(authenticationProvider) // Custom authentication provider
                 .addFilterAfter(cacheRequestBodyFilter, UsernamePasswordAuthenticationFilter.class)

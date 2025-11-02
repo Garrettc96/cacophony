@@ -3,7 +3,6 @@
  */
 package com.example.cacophony.jooq;
 
-
 import com.example.cacophony.jooq.tables.CUser;
 import com.example.cacophony.jooq.tables.Channel;
 import com.example.cacophony.jooq.tables.ChannelVisibility;
@@ -36,10 +35,8 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
 import org.jooq.impl.QOM.ForeignKeyRule;
 
-
 /**
- * A class modelling foreign key relationships and constraints of tables in
- * cacophony.
+ * A class modelling foreign key relationships and constraints of tables in cacophony.
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
 public class Keys {
@@ -48,33 +45,91 @@ public class Keys {
     // UNIQUE and PRIMARY KEY definitions
     // -------------------------------------------------------------------------
 
-    public static final UniqueKey<CUserRecord> C_USER_PKEY = Internal.createUniqueKey(CUser.C_USER, DSL.name("c_user_pkey"), new TableField[] { CUser.C_USER.ID }, true);
-    public static final UniqueKey<CUserRecord> C_USER_USERNAME_KEY = Internal.createUniqueKey(CUser.C_USER, DSL.name("c_user_username_key"), new TableField[] { CUser.C_USER.USERNAME }, true);
-    public static final UniqueKey<ChannelRecord> CHANNEL_PKEY = Internal.createUniqueKey(Channel.CHANNEL, DSL.name("channel_pkey"), new TableField[] { Channel.CHANNEL.ID }, true);
-    public static final UniqueKey<ChannelVisibilityRecord> CHANNEL_VISIBILITY_PKEY = Internal.createUniqueKey(ChannelVisibility.CHANNEL_VISIBILITY, DSL.name("channel_visibility_pkey"), new TableField[] { ChannelVisibility.CHANNEL_VISIBILITY.VISIBILITY }, true);
-    public static final UniqueKey<ChatRecord> CHAT_PKEY = Internal.createUniqueKey(Chat.CHAT, DSL.name("chat_pkey"), new TableField[] { Chat.CHAT.ID }, true);
-    public static final UniqueKey<ConversationRecord> CONVERSATION_PKEY = Internal.createUniqueKey(Conversation.CONVERSATION, DSL.name("conversation_pkey"), new TableField[] { Conversation.CONVERSATION.ID }, true);
-    public static final UniqueKey<ConversationTypeRecord> CONVERSATION_TYPE_PKEY = Internal.createUniqueKey(ConversationType.CONVERSATION_TYPE, DSL.name("conversation_type_pkey"), new TableField[] { ConversationType.CONVERSATION_TYPE.TYPE }, true);
-    public static final UniqueKey<DatabasechangeloglockRecord> DATABASECHANGELOGLOCK_PKEY = Internal.createUniqueKey(Databasechangeloglock.DATABASECHANGELOGLOCK, DSL.name("databasechangeloglock_pkey"), new TableField[] { Databasechangeloglock.DATABASECHANGELOGLOCK.ID }, true);
-    public static final UniqueKey<MessageRecord> MESSAGE_PKEY = Internal.createUniqueKey(Message.MESSAGE, DSL.name("message_pkey"), new TableField[] { Message.MESSAGE.ID }, true);
-    public static final UniqueKey<ReactRecord> REACT_PKEY = Internal.createUniqueKey(React.REACT, DSL.name("react_pkey"), new TableField[] { React.REACT.ID }, true);
-    public static final UniqueKey<UserRoleRecord> USER_ROLE_PKEY = Internal.createUniqueKey(UserRole.USER_ROLE, DSL.name("user_role_pkey"), new TableField[] { UserRole.USER_ROLE.ROLE }, true);
+    public static final UniqueKey<CUserRecord> C_USER_PKEY = Internal.createUniqueKey(CUser.C_USER,
+            DSL.name("c_user_pkey"), new TableField[] { CUser.C_USER.ID }, true);
+    public static final UniqueKey<CUserRecord> C_USER_USERNAME_KEY = Internal.createUniqueKey(CUser.C_USER,
+            DSL.name("c_user_username_key"), new TableField[] { CUser.C_USER.USERNAME }, true);
+    public static final UniqueKey<ChannelRecord> CHANNEL_PKEY = Internal.createUniqueKey(Channel.CHANNEL,
+            DSL.name("channel_pkey"), new TableField[] { Channel.CHANNEL.ID }, true);
+    public static final UniqueKey<ChannelVisibilityRecord> CHANNEL_VISIBILITY_PKEY = Internal.createUniqueKey(
+            ChannelVisibility.CHANNEL_VISIBILITY, DSL.name("channel_visibility_pkey"),
+            new TableField[] { ChannelVisibility.CHANNEL_VISIBILITY.VISIBILITY }, true);
+    public static final UniqueKey<ChatRecord> CHAT_PKEY = Internal.createUniqueKey(Chat.CHAT, DSL.name("chat_pkey"),
+            new TableField[] { Chat.CHAT.ID }, true);
+    public static final UniqueKey<ConversationRecord> CONVERSATION_PKEY = Internal.createUniqueKey(
+            Conversation.CONVERSATION, DSL.name("conversation_pkey"), new TableField[] { Conversation.CONVERSATION.ID },
+            true);
+    public static final UniqueKey<ConversationTypeRecord> CONVERSATION_TYPE_PKEY = Internal.createUniqueKey(
+            ConversationType.CONVERSATION_TYPE, DSL.name("conversation_type_pkey"),
+            new TableField[] { ConversationType.CONVERSATION_TYPE.TYPE }, true);
+    public static final UniqueKey<DatabasechangeloglockRecord> DATABASECHANGELOGLOCK_PKEY = Internal.createUniqueKey(
+            Databasechangeloglock.DATABASECHANGELOGLOCK, DSL.name("databasechangeloglock_pkey"),
+            new TableField[] { Databasechangeloglock.DATABASECHANGELOGLOCK.ID }, true);
+    public static final UniqueKey<MessageRecord> MESSAGE_PKEY = Internal.createUniqueKey(Message.MESSAGE,
+            DSL.name("message_pkey"), new TableField[] { Message.MESSAGE.ID }, true);
+    public static final UniqueKey<ReactRecord> REACT_PKEY = Internal.createUniqueKey(React.REACT,
+            DSL.name("react_pkey"), new TableField[] { React.REACT.ID }, true);
+    public static final UniqueKey<UserRoleRecord> USER_ROLE_PKEY = Internal.createUniqueKey(UserRole.USER_ROLE,
+            DSL.name("user_role_pkey"), new TableField[] { UserRole.USER_ROLE.ROLE }, true);
 
     // -------------------------------------------------------------------------
     // FOREIGN KEY definitions
     // -------------------------------------------------------------------------
 
-    public static final ForeignKey<CUserRecord, UserRoleRecord> C_USER__FK_C_USER_USER_ROLE = Internal.createForeignKey(CUser.C_USER, DSL.name("fk_c_user_user_role"), new TableField[] { CUser.C_USER.USER_ROLE }, Keys.USER_ROLE_PKEY, new TableField[] { UserRole.USER_ROLE.ROLE }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
-    public static final ForeignKey<ChannelRecord, ConversationRecord> CHANNEL__FK_CHANNEL_CONVERSATION = Internal.createForeignKey(Channel.CHANNEL, DSL.name("fk_channel_conversation"), new TableField[] { Channel.CHANNEL.ID }, Keys.CONVERSATION_PKEY, new TableField[] { Conversation.CONVERSATION.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
-    public static final ForeignKey<ChannelRecord, ChannelVisibilityRecord> CHANNEL__FK_CHANNEL_VISIBILITY = Internal.createForeignKey(Channel.CHANNEL, DSL.name("fk_channel_visibility"), new TableField[] { Channel.CHANNEL.VISIBILITY }, Keys.CHANNEL_VISIBILITY_PKEY, new TableField[] { ChannelVisibility.CHANNEL_VISIBILITY.VISIBILITY }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
-    public static final ForeignKey<ChatRecord, ConversationRecord> CHAT__FK_CHAT_CONVERSATION = Internal.createForeignKey(Chat.CHAT, DSL.name("fk_chat_conversation"), new TableField[] { Chat.CHAT.ID }, Keys.CONVERSATION_PKEY, new TableField[] { Conversation.CONVERSATION.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
-    public static final ForeignKey<ConversationRecord, ConversationTypeRecord> CONVERSATION__FK_CONVERSATION_TYPE = Internal.createForeignKey(Conversation.CONVERSATION, DSL.name("fk_conversation_type"), new TableField[] { Conversation.CONVERSATION.TYPE }, Keys.CONVERSATION_TYPE_PKEY, new TableField[] { ConversationType.CONVERSATION_TYPE.TYPE }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
-    public static final ForeignKey<MessageRecord, CUserRecord> MESSAGE__FK_MESSAGE_C_USER = Internal.createForeignKey(Message.MESSAGE, DSL.name("fk_message_c_user"), new TableField[] { Message.MESSAGE.USER_ID }, Keys.C_USER_PKEY, new TableField[] { CUser.C_USER.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
-    public static final ForeignKey<MessageRecord, ConversationRecord> MESSAGE__FK_MESSAGE_CONVERSATION = Internal.createForeignKey(Message.MESSAGE, DSL.name("fk_message_conversation"), new TableField[] { Message.MESSAGE.CONVERSATION_ID }, Keys.CONVERSATION_PKEY, new TableField[] { Conversation.CONVERSATION.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
-    public static final ForeignKey<MessageReactRecord, MessageRecord> MESSAGE_REACT__MESSAGE_REACT_MESSAGE_ID_FKEY = Internal.createForeignKey(MessageReact.MESSAGE_REACT, DSL.name("message_react_message_id_fkey"), new TableField[] { MessageReact.MESSAGE_REACT.MESSAGE_ID }, Keys.MESSAGE_PKEY, new TableField[] { Message.MESSAGE.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
-    public static final ForeignKey<MessageReactRecord, ReactRecord> MESSAGE_REACT__MESSAGE_REACT_REACT_ID_FKEY = Internal.createForeignKey(MessageReact.MESSAGE_REACT, DSL.name("message_react_react_id_fkey"), new TableField[] { MessageReact.MESSAGE_REACT.REACT_ID }, Keys.REACT_PKEY, new TableField[] { React.REACT.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
-    public static final ForeignKey<MessageReactRecord, CUserRecord> MESSAGE_REACT__MESSAGE_REACT_USER_ID_FKEY = Internal.createForeignKey(MessageReact.MESSAGE_REACT, DSL.name("message_react_user_id_fkey"), new TableField[] { MessageReact.MESSAGE_REACT.USER_ID }, Keys.C_USER_PKEY, new TableField[] { CUser.C_USER.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
-    public static final ForeignKey<ReactRecord, CUserRecord> REACT__FK_REACT_C_USER = Internal.createForeignKey(React.REACT, DSL.name("fk_react_c_user"), new TableField[] { React.REACT.USER_ID }, Keys.C_USER_PKEY, new TableField[] { CUser.C_USER.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
-    public static final ForeignKey<UserConversationRecord, CUserRecord> USER_CONVERSATION__FK_USER_CONVERSATION_C_USER = Internal.createForeignKey(UserConversation.USER_CONVERSATION, DSL.name("fk_user_conversation_c_user"), new TableField[] { UserConversation.USER_CONVERSATION.USER_ID }, Keys.C_USER_PKEY, new TableField[] { CUser.C_USER.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
-    public static final ForeignKey<UserConversationRecord, ConversationRecord> USER_CONVERSATION__FK_USER_CONVERSATION_CONVERSATION = Internal.createForeignKey(UserConversation.USER_CONVERSATION, DSL.name("fk_user_conversation_conversation"), new TableField[] { UserConversation.USER_CONVERSATION.CHANNEL_ID }, Keys.CONVERSATION_PKEY, new TableField[] { Conversation.CONVERSATION.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<CUserRecord, UserRoleRecord> C_USER__FK_C_USER_USER_ROLE = Internal.createForeignKey(
+            CUser.C_USER, DSL.name("fk_c_user_user_role"), new TableField[] { CUser.C_USER.USER_ROLE },
+            Keys.USER_ROLE_PKEY, new TableField[] { UserRole.USER_ROLE.ROLE }, true, ForeignKeyRule.NO_ACTION,
+            ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<ChannelRecord, ConversationRecord> CHANNEL__FK_CHANNEL_CONVERSATION = Internal
+            .createForeignKey(Channel.CHANNEL, DSL.name("fk_channel_conversation"),
+                    new TableField[] { Channel.CHANNEL.ID }, Keys.CONVERSATION_PKEY,
+                    new TableField[] { Conversation.CONVERSATION.ID }, true, ForeignKeyRule.NO_ACTION,
+                    ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<ChannelRecord, ChannelVisibilityRecord> CHANNEL__FK_CHANNEL_VISIBILITY = Internal
+            .createForeignKey(Channel.CHANNEL, DSL.name("fk_channel_visibility"),
+                    new TableField[] { Channel.CHANNEL.VISIBILITY }, Keys.CHANNEL_VISIBILITY_PKEY,
+                    new TableField[] { ChannelVisibility.CHANNEL_VISIBILITY.VISIBILITY }, true,
+                    ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<ChatRecord, ConversationRecord> CHAT__FK_CHAT_CONVERSATION = Internal
+            .createForeignKey(Chat.CHAT, DSL.name("fk_chat_conversation"), new TableField[] { Chat.CHAT.ID },
+                    Keys.CONVERSATION_PKEY, new TableField[] { Conversation.CONVERSATION.ID }, true,
+                    ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<ConversationRecord, ConversationTypeRecord> CONVERSATION__FK_CONVERSATION_TYPE = Internal
+            .createForeignKey(Conversation.CONVERSATION, DSL.name("fk_conversation_type"),
+                    new TableField[] { Conversation.CONVERSATION.TYPE }, Keys.CONVERSATION_TYPE_PKEY,
+                    new TableField[] { ConversationType.CONVERSATION_TYPE.TYPE }, true, ForeignKeyRule.NO_ACTION,
+                    ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<MessageRecord, CUserRecord> MESSAGE__FK_MESSAGE_C_USER = Internal.createForeignKey(
+            Message.MESSAGE, DSL.name("fk_message_c_user"), new TableField[] { Message.MESSAGE.USER_ID },
+            Keys.C_USER_PKEY, new TableField[] { CUser.C_USER.ID }, true, ForeignKeyRule.NO_ACTION,
+            ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<MessageRecord, ConversationRecord> MESSAGE__FK_MESSAGE_CONVERSATION = Internal
+            .createForeignKey(Message.MESSAGE, DSL.name("fk_message_conversation"),
+                    new TableField[] { Message.MESSAGE.CONVERSATION_ID }, Keys.CONVERSATION_PKEY,
+                    new TableField[] { Conversation.CONVERSATION.ID }, true, ForeignKeyRule.NO_ACTION,
+                    ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<MessageReactRecord, MessageRecord> MESSAGE_REACT__MESSAGE_REACT_MESSAGE_ID_FKEY = Internal
+            .createForeignKey(MessageReact.MESSAGE_REACT, DSL.name("message_react_message_id_fkey"),
+                    new TableField[] { MessageReact.MESSAGE_REACT.MESSAGE_ID }, Keys.MESSAGE_PKEY,
+                    new TableField[] { Message.MESSAGE.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<MessageReactRecord, ReactRecord> MESSAGE_REACT__MESSAGE_REACT_REACT_ID_FKEY = Internal
+            .createForeignKey(MessageReact.MESSAGE_REACT, DSL.name("message_react_react_id_fkey"),
+                    new TableField[] { MessageReact.MESSAGE_REACT.REACT_ID }, Keys.REACT_PKEY,
+                    new TableField[] { React.REACT.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<MessageReactRecord, CUserRecord> MESSAGE_REACT__MESSAGE_REACT_USER_ID_FKEY = Internal
+            .createForeignKey(MessageReact.MESSAGE_REACT, DSL.name("message_react_user_id_fkey"),
+                    new TableField[] { MessageReact.MESSAGE_REACT.USER_ID }, Keys.C_USER_PKEY,
+                    new TableField[] { CUser.C_USER.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<ReactRecord, CUserRecord> REACT__FK_REACT_C_USER = Internal.createForeignKey(
+            React.REACT, DSL.name("fk_react_c_user"), new TableField[] { React.REACT.USER_ID }, Keys.C_USER_PKEY,
+            new TableField[] { CUser.C_USER.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<UserConversationRecord, CUserRecord> USER_CONVERSATION__FK_USER_CONVERSATION_C_USER = Internal
+            .createForeignKey(UserConversation.USER_CONVERSATION, DSL.name("fk_user_conversation_c_user"),
+                    new TableField[] { UserConversation.USER_CONVERSATION.USER_ID }, Keys.C_USER_PKEY,
+                    new TableField[] { CUser.C_USER.ID }, true, ForeignKeyRule.NO_ACTION, ForeignKeyRule.NO_ACTION);
+    public static final ForeignKey<UserConversationRecord, ConversationRecord> USER_CONVERSATION__FK_USER_CONVERSATION_CONVERSATION = Internal
+            .createForeignKey(UserConversation.USER_CONVERSATION, DSL.name("fk_user_conversation_conversation"),
+                    new TableField[] { UserConversation.USER_CONVERSATION.CHANNEL_ID }, Keys.CONVERSATION_PKEY,
+                    new TableField[] { Conversation.CONVERSATION.ID }, true, ForeignKeyRule.NO_ACTION,
+                    ForeignKeyRule.NO_ACTION);
 }

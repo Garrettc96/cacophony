@@ -3,14 +3,12 @@
  */
 package com.example.cacophony.jooq;
 
-
 import com.example.cacophony.jooq.routines.GenRandomUuid7;
 
 import java.util.UUID;
 
 import org.jooq.Configuration;
 import org.jooq.Field;
-
 
 /**
  * Convenience access to all stored procedures and functions in cacophony.
@@ -21,9 +19,7 @@ public class Routines {
     /**
      * Call <code>cacophony.gen_random_uuid7</code>
      */
-    public static UUID genRandomUuid7(
-          Configuration configuration
-    ) {
+    public static UUID genRandomUuid7(Configuration configuration) {
         GenRandomUuid7 f = new GenRandomUuid7();
 
         f.execute(configuration);

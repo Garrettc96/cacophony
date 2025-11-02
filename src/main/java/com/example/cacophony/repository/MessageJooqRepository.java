@@ -55,19 +55,13 @@ public class MessageJooqRepository {
     }
 
     public void addReactionToMessage(UUID messageId, UUID reactId, UUID userId) {
-        dsl.insertInto(MESSAGE_REACT)
-           .set(MESSAGE_REACT.MESSAGE_ID, messageId)
-           .set(MESSAGE_REACT.REACT_ID, reactId)
-           .set(MESSAGE_REACT.USER_ID, userId)
-           .execute();
+        dsl.insertInto(MESSAGE_REACT).set(MESSAGE_REACT.MESSAGE_ID, messageId).set(MESSAGE_REACT.REACT_ID, reactId)
+                .set(MESSAGE_REACT.USER_ID, userId).execute();
     }
 
     public void removeReactionFromMessage(UUID messageId, UUID reactId, UUID userId) {
-        dsl.deleteFrom(MESSAGE_REACT)
-           .where(MESSAGE_REACT.MESSAGE_ID.eq(messageId))
-           .and(MESSAGE_REACT.REACT_ID.eq(reactId))
-           .and(MESSAGE_REACT.USER_ID.eq(userId))
-           .execute();
+        dsl.deleteFrom(MESSAGE_REACT).where(MESSAGE_REACT.MESSAGE_ID.eq(messageId))
+                .and(MESSAGE_REACT.REACT_ID.eq(reactId)).and(MESSAGE_REACT.USER_ID.eq(userId)).execute();
     }
 
 }

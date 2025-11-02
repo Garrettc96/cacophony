@@ -401,15 +401,12 @@ class CacophonyApplicationTests {
         reactToMessageRequest.setReactId(react.getId());
 
         mockMvc.perform(post("/cacophony/messages/" + message.getId() + "/react")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(reactToMessageRequest)))
-                .andExpect(status().isOk());
+                .header("Authorization", "Bearer " + token).contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reactToMessageRequest))).andExpect(status().isOk());
 
         // Test removing a reaction
         mockMvc.perform(delete("/cacophony/messages/" + message.getId() + "/react/" + react.getId())
-                .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk());
+                .header("Authorization", "Bearer " + token)).andExpect(status().isOk());
     }
 
     private String generateToken() throws Exception {
@@ -454,10 +451,12 @@ class CacophonyApplicationTests {
                 .conversationId(UUID.fromString(conversationId)).message(getRandomString()).build();
 
         // Test sending a message
-        String response = mockMvc.perform(post("/cacophony/messages").header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(createMessageRequest)))
+        String response = mockMvc
+                .perform(post("/cacophony/messages").header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createMessageRequest)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-        
+
         return objectMapper.readValue(response, MessageResponse.class);
     }
 

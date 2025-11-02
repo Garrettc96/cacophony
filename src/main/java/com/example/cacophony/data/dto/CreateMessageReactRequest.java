@@ -21,4 +21,4 @@ public class CreateMessageReactRequest {
     public void setReactId(UUID reactId) {
         this.reactId = reactId;
     }
-} 
+}
